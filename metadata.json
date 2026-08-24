@@ -1,0 +1,6 @@
+{
+  "name": "أصول رواية ورش عن نافع",
+  "description": "منهج تعليمي تفاعلي متكامل لأصول رواية ورش عن نافع من طريق الشاطبية",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
