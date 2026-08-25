@@ -1,17 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useParams, useNavigate } from 'react-router-dom';
-import { BookOpen, Menu, X, CheckCircle2, LogOut, User } from 'lucide-react';
+import { BookOpen, Menu, X, CheckCircle2, LogOut, User, Sun, Moon } from 'lucide-react';
 import { courseMap } from '../data/courseMap';
 import { cn } from '../lib/utils';
 import { qiraatTree } from '../data/qiraatTree';
 import { useAuth } from '../context/AuthContext';
 
 export function Layout() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  
   const location = useLocation();
   const navigate = useNavigate();
   const { role, userData, logout } = useAuth();
   
+  // Theme initialization
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('app_theme');
+    if (savedTheme === 'light') {
+      setIsDarkMode(false);
+      document.documentElement.classList.add('theme-light');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('theme-light');
+      localStorage.setItem('app_theme', 'light');
+      setIsDarkMode(false);
+    } else {
+      document.documentElement.classList.remove('theme-light');
+      localStorage.setItem('app_theme', 'dark');
+      setIsDarkMode(true);
+    }
+  };
+
   // Extract route params manually from pathname to determine if we are in a course view
   const isCourseRoute = location.pathname.includes('/course/') || location.pathname.includes('/lesson/');
   const pathParts = location.pathname.split('/');
@@ -54,6 +77,13 @@ export function Layout() {
             </Link>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2 bg-navy-800 hover:bg-navy-700 text-gold-400 rounded-lg transition-colors border border-navy-700 hover:border-gold-500/30"
+              title={isDarkMode ? "التبديل للوضع النهاري (وضع القراءة)" : "التبديل للوضع الليلي"}
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
             {!role ? (
               <>
                 <Link to="/login" className="text-sm font-bold text-navy-200 hover:text-white transition">تسجيل الدخول</Link>

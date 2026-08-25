@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Shield, ShieldAlert, CheckCircle2, Users, Key, Link as LinkIcon, Plus, Save } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Teacher, StudentRecord } from './Login';
+import { db } from '../lib/firebase';
+import { collection, query, getDocs, addDoc, updateDoc, doc, onSnapshot } from 'firebase/firestore';
 
 export function Admin() {
   const [password, setPassword] = useState('');
@@ -20,25 +22,31 @@ export function Admin() {
   const [newTeacherName, setNewTeacherName] = useState('');
 
   useEffect(() => {
-    // Load teachers
-    const savedTeachers = localStorage.getItem('app_teachers');
-    if (savedTeachers) {
-      setTeachers(JSON.parse(savedTeachers));
-    } else {
-      // Setup default mock teacher if none exists
-      const defaultTeacher: Teacher = { id: 't1', name: 'الشيخ أحمد محمود', code: 'AHMAD2024', active: true };
-      setTeachers([defaultTeacher]);
-      localStorage.setItem('app_teachers', JSON.stringify([defaultTeacher]));
-    }
+    if (role === 'admin') {
+      // Real-time listener for teachers
+      const unsubscribeTeachers = onSnapshot(collection(db, 'teachers'), (snapshot) => {
+        const teachersData: Teacher[] = [];
+        snapshot.forEach((doc) => {
+          teachersData.push({ id: doc.id, ...doc.data() } as Teacher);
+        });
+        setTeachers(teachersData);
+      });
 
-    // Load students
-    const savedStudents = localStorage.getItem('app_students');
-    if (savedStudents) {
-      setStudents(JSON.parse(savedStudents));
-    } else {
-      setStudents([]);
+      // Real-time listener for students
+      const unsubscribeStudents = onSnapshot(collection(db, 'students'), (snapshot) => {
+        const studentsData: StudentRecord[] = [];
+        snapshot.forEach((doc) => {
+          studentsData.push({ id: doc.id, ...doc.data() } as StudentRecord);
+        });
+        setStudents(studentsData);
+      });
+
+      return () => {
+        unsubscribeTeachers();
+        unsubscribeStudents();
+      };
     }
-  }, []);
+  }, [role]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,32 +59,35 @@ export function Admin() {
     }
   };
 
-  const saveTeachers = (newTeachers: Teacher[]) => {
-    setTeachers(newTeachers);
-    localStorage.setItem('app_teachers', JSON.stringify(newTeachers));
-  };
-
-  const handleAddTeacher = (e: React.FormEvent) => {
+  const handleAddTeacher = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTeacherName.trim()) return;
     
     // Generate a random 6-character code
     const generatedCode = 'TCH-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     
-    const newTeacher: Teacher = {
-      id: Date.now().toString(),
-      name: newTeacherName,
-      code: generatedCode,
-      active: true
-    };
-    
-    saveTeachers([...teachers, newTeacher]);
-    setNewTeacherName('');
+    try {
+      await addDoc(collection(db, 'teachers'), {
+        name: newTeacherName,
+        code: generatedCode,
+        active: true
+      });
+      setNewTeacherName('');
+    } catch (err) {
+      console.error(err);
+      alert('حدث خطأ أثناء إضافة المعلم');
+    }
   };
 
-  const toggleTeacherStatus = (id: string) => {
-    const updated = teachers.map(t => t.id === id ? { ...t, active: !t.active } : t);
-    saveTeachers(updated);
+  const toggleTeacherStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      await updateDoc(doc(db, 'teachers', id), {
+        active: !currentStatus
+      });
+    } catch (err) {
+      console.error(err);
+      alert('حدث خطأ أثناء تحديث حالة المعلم');
+    }
   };
 
   const copyLink = (code: string) => {
@@ -95,6 +106,7 @@ export function Admin() {
     setSettingsMessage('تم تغيير كلمة المرور بنجاح.');
     setNewAdminPassword('');
   };
+
 
   if (role !== 'admin') {
     return (
@@ -273,7 +285,7 @@ export function Admin() {
                       </td>
                       <td className="py-4">
                         <button 
-                          onClick={() => toggleTeacherStatus(teacher.id)}
+                          onClick={() => toggleTeacherStatus(teacher.id, teacher.active)}
                           className={`px-4 py-1.5 rounded-lg text-sm font-bold transition ${teacher.active ? 'bg-navy-800 text-red-400 hover:bg-red-500/20' : 'bg-navy-800 text-green-400 hover:bg-green-500/20'}`}
                         >
                           {teacher.active ? 'إيقاف' : 'تفعيل'}

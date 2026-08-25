@@ -9,24 +9,27 @@ import { Login } from './pages/Login';
 import { Admin } from './pages/Admin';
 import { ProgressProvider } from './context/ProgressContext';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 
 export default function App() {
   return (
     <AuthProvider>
       <ProgressProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Portal />} />
-              <Route path="qari/:qariId" element={<QariView />} />
-              <Route path="course/:qariId/:rawiId/:tariqId" element={<CourseView />} />
-              <Route path="lesson/:qariId/:rawiId/:tariqId/:unitId/:lessonId" element={<Lesson />} />
-              <Route path="exam/:qariId/:rawiId/:tariqId" element={<ExamView />} />
-              <Route path="login" element={<Login />} />
-              <Route path="admin" element={<Admin />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
+        <ToastProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Portal />} />
+                <Route path="qari/:qariId" element={<QariView />} />
+                <Route path="course/:qariId/:rawiId/:tariqId" element={<CourseView />} />
+                <Route path="lesson/:qariId/:rawiId/:tariqId/:unitId/:lessonId" element={<Lesson />} />
+                <Route path="exam/:qariId/:rawiId/:tariqId" element={<ExamView />} />
+                <Route path="login" element={<Login />} />
+                <Route path="admin" element={<Admin />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
       </ProgressProvider>
     </AuthProvider>
   );

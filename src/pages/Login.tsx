@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export interface Teacher {
   id: string;
@@ -17,7 +19,7 @@ export interface StudentRecord {
   teacherName: string;
   currentPath: string;
   status: 'نشط' | 'مجتاز';
-  registeredAt: string;
+  registeredAt: any;
 }
 
 export function Login() {
@@ -27,6 +29,7 @@ export function Login() {
   const [studentName, setStudentName] = useState('');
   const [teacherCode, setTeacherCode] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Check for ?code= parameter in URL
@@ -37,49 +40,63 @@ export function Login() {
     }
   }, [location]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
-    // Load teachers from DB
-    const savedTeachers = localStorage.getItem('app_teachers');
-    const teachers: Teacher[] = savedTeachers ? JSON.parse(savedTeachers) : [];
+    try {
+      // 1. Check if teacher exists
+      const teachersRef = collection(db, 'teachers');
+      const qTeacher = query(teachersRef, where('code', '==', teacherCode));
+      const teacherSnapshot = await getDocs(qTeacher);
 
-    const teacher = teachers.find(t => t.code === teacherCode);
-
-    if (!teacher) {
-      setError('كود المعلم غير صحيح أو غير مسجل لدينا.');
-      return;
-    }
-
-    if (!teacher.active) {
-      setError('حساب هذا المعلم غير مفعل حالياً. يرجى مراجعة الإدارة.');
-      return;
-    }
-
-    if (studentName.trim() !== '') {
-      // Save student to global mock database
-      const savedStudents = localStorage.getItem('app_students');
-      const students: StudentRecord[] = savedStudents ? JSON.parse(savedStudents) : [];
-      
-      const existingStudent = students.find(s => s.name === studentName && s.teacherCode === teacher.code);
-      
-      if (!existingStudent) {
-        const newStudent: StudentRecord = {
-          id: Date.now().toString(),
-          name: studentName,
-          teacherCode: teacher.code,
-          teacherName: teacher.name,
-          currentPath: 'ورش (الشاطبية)',
-          status: 'نشط',
-          registeredAt: new Date().toISOString()
-        };
-        students.push(newStudent);
-        localStorage.setItem('app_students', JSON.stringify(students));
+      if (teacherSnapshot.empty) {
+        setError('كود المعلم غير صحيح أو غير مسجل لدينا.');
+        setIsLoading(false);
+        return;
       }
 
-      login('student', { name: studentName, teacherCode: teacher.code });
-      navigate('/');
+      const teacherDoc = teacherSnapshot.docs[0];
+      const teacherData = teacherDoc.data() as Omit<Teacher, 'id'>;
+
+      if (!teacherData.active) {
+        setError('حساب هذا المعلم غير مفعل حالياً. يرجى مراجعة الإدارة.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (studentName.trim() !== '') {
+        // 2. Check if student already exists for this teacher
+        const studentsRef = collection(db, 'students');
+        const qStudent = query(studentsRef, where('name', '==', studentName.trim()), where('teacherCode', '==', teacherCode));
+        const studentSnapshot = await getDocs(qStudent);
+
+        let studentId = '';
+
+        if (studentSnapshot.empty) {
+          // Register new student
+          const docRef = await addDoc(studentsRef, {
+            name: studentName.trim(),
+            teacherCode: teacherCode,
+            teacherName: teacherData.name,
+            currentPath: 'ورش (الشاطبية)',
+            status: 'نشط',
+            registeredAt: serverTimestamp()
+          });
+          studentId = docRef.id;
+        } else {
+          studentId = studentSnapshot.docs[0].id;
+        }
+
+        login('student', { id: studentId, name: studentName.trim(), teacherCode: teacherCode });
+        navigate('/');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('حدث خطأ أثناء الاتصال بالخادم. حاول مرة أخرى.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -102,6 +119,7 @@ export function Login() {
             onChange={(e) => setStudentName(e.target.value)}
             className="w-full bg-navy-950 border border-navy-700 text-white p-4 rounded-xl text-center focus:border-gold-500 outline-none"
             required
+            disabled={isLoading}
           />
           <input
             type="text"
@@ -110,14 +128,16 @@ export function Login() {
             onChange={(e) => setTeacherCode(e.target.value)}
             className="w-full bg-navy-950 border border-navy-700 text-white p-4 rounded-xl text-center focus:border-gold-500 outline-none"
             required
+            disabled={isLoading}
           />
           {error && <p className="text-red-400 text-sm font-bold bg-red-500/10 p-2 rounded-lg border border-red-500/20">{error}</p>}
           <button 
             type="submit"
-            className="w-full bg-gold-500 text-navy-950 font-bold text-lg py-4 rounded-xl hover:bg-gold-400 transition shadow-lg flex items-center justify-center gap-3"
+            disabled={isLoading}
+            className="w-full bg-gold-500 text-navy-950 font-bold text-lg py-4 rounded-xl hover:bg-gold-400 transition shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
           >
             <LogIn className="w-5 h-5" />
-            تسجيل الدخول
+            {isLoading ? 'جاري التحقق...' : 'تسجيل الدخول'}
           </button>
         </form>
       </div>

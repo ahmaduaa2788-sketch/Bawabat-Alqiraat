@@ -9,7 +9,7 @@ import { qiraatTree } from '../data/qiraatTree';
 export function CourseView() {
   const { qariId, rawiId, tariqId } = useParams<{ qariId: string; rawiId: string; tariqId: string }>();
   const navigate = useNavigate();
-  const { completeTariq, completedTuruq } = useProgress();
+  const { completeTariq, completedTuruq, completedLessons } = useProgress();
 
   const qari = qiraatTree.find(q => q.id === qariId);
   const rawi = qari?.ruwat.find(r => r.id === rawiId);
@@ -76,17 +76,24 @@ export function CourseView() {
         </div>
       ) : (
         <div className="space-y-8 relative before:absolute before:inset-0 before:ml-auto before:mr-auto before:-translate-x-1/2 before:w-1 before:bg-navy-800 before:z-0 md:before:mr-[40px] md:before:-translate-x-0">
-          {displayMap.map((unit, index) => (
+          {displayMap.map((unit, index) => {
+            const unitCompletedLessons = unit.lessons.filter(l => completedLessons.includes(`${unit.id}-${l.id}`)).length;
+            const progressPercentage = unit.lessons.length > 0 ? (unitCompletedLessons / unit.lessons.length) * 100 : 0;
+            const isUnitComplete = progressPercentage === 100;
+            
+            return (
             <div key={unit.id} className="relative z-10 flex flex-col md:flex-row gap-6 md:gap-12 items-start group">
               
               <div className="hidden md:flex flex-col items-center">
                 <div className={cn(
                   "w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-bold border-4 shadow-xl transition-transform group-hover:scale-105 bg-navy-950",
-                  unit.lessons.length > 0 
-                    ? "text-gold-500 border-gold-500 shadow-gold-500/20" 
-                    : "text-navy-600 border-navy-800 shadow-navy-950"
+                  isUnitComplete
+                    ? "text-green-500 border-green-500 shadow-green-500/20"
+                    : unit.lessons.length > 0 
+                      ? "text-gold-500 border-gold-500 shadow-gold-500/20" 
+                      : "text-navy-600 border-navy-800 shadow-navy-950"
                 )}>
-                  {index.toString().padStart(2, '0')}
+                  {isUnitComplete ? <CheckCircle className="w-8 h-8" /> : index.toString().padStart(2, '0')}
                 </div>
               </div>
 
@@ -101,7 +108,22 @@ export function CourseView() {
                   {unit.lessons.length === 0 && (
                     <span className="bg-navy-900 text-navy-400 border border-navy-800 text-sm px-3 py-1 rounded-full font-medium">قريباً</span>
                   )}
+                  {unit.lessons.length > 0 && (
+                    <span className={`text-sm font-bold px-3 py-1 rounded-full border ${isUnitComplete ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-navy-900 text-gold-400 border-gold-500/30'}`}>
+                      {unitCompletedLessons} / {unit.lessons.length}
+                    </span>
+                  )}
                 </div>
+                
+                {unit.lessons.length > 0 && (
+                  <div className="w-full bg-navy-900 rounded-full h-2.5 mb-6 border border-navy-800/50 overflow-hidden">
+                    <div 
+                      className={`h-2.5 rounded-full transition-all duration-1000 ${isUnitComplete ? 'bg-green-500' : 'bg-gold-500'}`} 
+                      style={{ width: `${progressPercentage}%` }}
+                    ></div>
+                  </div>
+                )}
+                
                 <p className="text-navy-300 text-lg leading-relaxed mb-4">
                   {unit.description}
                 </p>
@@ -135,7 +157,8 @@ export function CourseView() {
                 )}
               </div>
             </div>
-          ))}
+          );
+        })}
 
           {/* Final Exam / Completion marker for demo */}
           <div className="relative z-10 flex flex-col md:flex-row gap-6 md:gap-12 items-start mt-12">

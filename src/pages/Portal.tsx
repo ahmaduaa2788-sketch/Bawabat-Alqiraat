@@ -2,11 +2,14 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { qiraatTree } from '../data/qiraatTree';
 import { useProgress } from '../context/ProgressContext';
+import { useAuth } from '../context/AuthContext';
 import { Lock, BookOpen, ChevronLeft, RefreshCcw } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { StudentDashboard } from '../components/StudentDashboard';
 
 export function Portal() {
   const { activeQari, selectQari, resetProgress } = useProgress();
+  const { role } = useAuth();
   const navigate = useNavigate();
 
   const handleSelectQari = (qariId: string, isLocked: boolean) => {
@@ -17,6 +20,8 @@ export function Portal() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
+      {role === 'student' && <StudentDashboard />}
+
       <div className="text-center space-y-6 py-12">
         <div className="inline-flex items-center justify-center p-5 bg-navy-950/80 rounded-full mb-4 shadow-xl shadow-gold-500/10 border border-gold-500/20 backdrop-blur-sm">
           <BookOpen className="w-14 h-14 text-gold-500" />

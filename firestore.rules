@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow anyone to read teachers (for login)
+    match /teachers/{teacherId} {
+      allow read: if true;
+      allow write: if true; // In a real app, only admin could write
+    }
+    
+    // Allow anyone to read/write students (for login and registration)
+    match /students/{studentId} {
+      allow read: if true;
+      allow write: if true; 
+    }
+
+    // Allow students to read/write their own progress
+    match /studentProgress/{studentId} {
+      allow read: if true;
+      allow write: if true; 
+    }
+  }
+}
