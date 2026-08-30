@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, ShieldAlert, CheckCircle2, Users, Key, Link as LinkIcon, Plus, Save } from 'lucide-react';
+import { Shield, ShieldAlert, CheckCircle2, Users, Key, Link as LinkIcon, Plus, Save, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Teacher, StudentRecord } from './Login';
 import { db } from '../lib/firebase';
-import { collection, query, getDocs, addDoc, updateDoc, doc, onSnapshot } from 'firebase/firestore';
+import { collection, query, getDocs, addDoc, updateDoc, doc, onSnapshot, deleteDoc } from 'firebase/firestore';
 
 export function Admin() {
   const [password, setPassword] = useState('');
@@ -87,6 +87,27 @@ export function Admin() {
     } catch (err) {
       console.error(err);
       alert('حدث خطأ أثناء تحديث حالة المعلم');
+    }
+  };
+
+  const handleDeleteTeacher = async (id: string) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذا المعلم؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+    try {
+      await deleteDoc(doc(db, 'teachers', id));
+    } catch (err) {
+      console.error(err);
+      alert('حدث خطأ أثناء الحذف');
+    }
+  };
+
+  const handleDeleteStudent = async (id: string) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذا الطالب؟ سيتم حذف جميع بيانات تقدمه.')) return;
+    try {
+      await deleteDoc(doc(db, 'students', id));
+      await deleteDoc(doc(db, 'studentProgress', id));
+    } catch (err) {
+      console.error(err);
+      alert('حدث خطأ أثناء الحذف');
     }
   };
 
@@ -196,6 +217,7 @@ export function Admin() {
                     <th className="pb-4 font-bold">المعلم</th>
                     <th className="pb-4 font-bold">المسار الحالي</th>
                     <th className="pb-4 font-bold">الحالة</th>
+                    <th className="pb-4 font-bold">الإجراء</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -211,10 +233,19 @@ export function Admin() {
                           <span className="bg-gold-500/20 text-gold-400 px-3 py-1 rounded-full text-xs border border-gold-500/30 flex w-fit items-center gap-1"><CheckCircle2 className="w-3 h-3"/> مجتاز</span>
                         )}
                       </td>
+                      <td className="py-4">
+                        <button 
+                          onClick={() => handleDeleteStudent(student.id)}
+                          className="text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 p-2 rounded-lg border border-red-500/20 transition flex items-center justify-center"
+                          title="حذف الطالب"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan={4} className="py-8 text-center text-navy-400">لا يوجد طلاب مسجلين حتى الآن.</td>
+                      <td colSpan={5} className="py-8 text-center text-navy-400">لا يوجد طلاب مسجلين حتى الآن.</td>
                     </tr>
                   )}
                 </tbody>
@@ -283,12 +314,19 @@ export function Admin() {
                           {teacher.active ? 'مفعل' : 'موقوف'}
                         </span>
                       </td>
-                      <td className="py-4">
+                      <td className="py-4 flex items-center gap-2">
                         <button 
                           onClick={() => toggleTeacherStatus(teacher.id, teacher.active)}
                           className={`px-4 py-1.5 rounded-lg text-sm font-bold transition ${teacher.active ? 'bg-navy-800 text-red-400 hover:bg-red-500/20' : 'bg-navy-800 text-green-400 hover:bg-green-500/20'}`}
                         >
                           {teacher.active ? 'إيقاف' : 'تفعيل'}
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteTeacher(teacher.id)}
+                          className="p-1.5 rounded-lg text-sm font-bold transition bg-navy-800 text-red-400 hover:bg-red-500/20 border border-transparent hover:border-red-500/30"
+                          title="حذف المعلم"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
