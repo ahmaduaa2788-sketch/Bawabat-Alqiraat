@@ -8,6 +8,7 @@ interface ProgressState {
   activeRawiByQari: Record<string, string | null>;
   completedTuruq: string[];
   completedLessons: string[];
+  lessonNotes: Record<string, string>;
 }
 
 interface ProgressContextType extends ProgressState {
@@ -15,6 +16,7 @@ interface ProgressContextType extends ProgressState {
   selectRawi: (qariId: string, rawiId: string) => void;
   completeTariq: (qariId: string, rawiId: string, tariqId: string) => void;
   completeLesson: (lessonGlobalId: string) => void;
+  saveLessonNote: (lessonGlobalId: string, note: string) => void;
   resetProgress: () => void;
 }
 
@@ -22,7 +24,8 @@ const defaultState: ProgressState = {
   activeQari: null,
   activeRawiByQari: {},
   completedTuruq: [],
-  completedLessons: []
+  completedLessons: [],
+  lessonNotes: {}
 };
 
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined);
@@ -40,6 +43,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
         completedTuruq: parsed.completedTuruq || defaultState.completedTuruq,
         completedLessons: parsed.completedLessons || defaultState.completedLessons,
         activeRawiByQari: parsed.activeRawiByQari || defaultState.activeRawiByQari,
+        lessonNotes: parsed.lessonNotes || defaultState.lessonNotes,
       };
     }
     return defaultState;
@@ -61,6 +65,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
               completedTuruq: data.completedTuruq || defaultState.completedTuruq,
               completedLessons: data.completedLessons || defaultState.completedLessons,
               activeRawiByQari: data.activeRawiByQari || defaultState.activeRawiByQari,
+              lessonNotes: data.lessonNotes || defaultState.lessonNotes,
             });
           } else {
             // Initialize in Firestore
@@ -128,12 +133,22 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const saveLessonNote = (lessonGlobalId: string, note: string) => {
+    setState(prev => ({
+      ...prev,
+      lessonNotes: {
+        ...(prev.lessonNotes || {}),
+        [lessonGlobalId]: note
+      }
+    }));
+  };
+
   const resetProgress = () => {
     setState(defaultState);
   };
 
   return (
-    <ProgressContext.Provider value={{ ...state, selectQari, selectRawi, completeTariq, completeLesson, resetProgress }}>
+    <ProgressContext.Provider value={{ ...state, selectQari, selectRawi, completeTariq, completeLesson, saveLessonNote, resetProgress }}>
       {children}
     </ProgressContext.Provider>
   );

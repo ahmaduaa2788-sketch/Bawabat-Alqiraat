@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { courseMap } from '../data/courseMap';
 import { unit0Content } from '../data/unit0';
@@ -7,13 +7,20 @@ import { unit2Content } from '../data/unit2';
 import { unit3Content } from '../data/unit3';
 import { unit4Content } from '../data/unit4';
 import { unit5Content } from '../data/unit5';
+import { unit6Content } from '../data/unit6';
+import { unit7Content } from '../data/unit7';
 import { unit8Content } from '../data/unit8';
 import { unit9Content } from '../data/unit9';
+import { unit10Content } from '../data/unit10';
+import { unit11Content } from '../data/unit11';
+import { unit12Content } from '../data/unit12';
+import { unit13Content } from '../data/unit13';
 import { Unit0Quiz } from '../components/Unit0Quiz';
 import { Unit1Quiz } from '../components/Unit1Quiz';
 import { Unit2Quiz } from '../components/Unit2Quiz';
 import { QuranicLab } from '../components/QuranicLab';
-import { ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
+import { QuickQuestion } from '../components/QuickQuestion';
+import { ArrowRight, ArrowLeft, CheckCircle, Save, StickyNote } from 'lucide-react';
 import { qiraatTree } from '../data/qiraatTree';
 import { useProgress } from '../context/ProgressContext';
 import { useToast } from '../context/ToastContext';
@@ -28,8 +35,21 @@ export function Lesson() {
   }>();
   
   const navigate = useNavigate();
-  const { completeLesson, completedLessons } = useProgress();
+  const { completeLesson, completedLessons, lessonNotes, saveLessonNote } = useProgress();
   const { showToast } = useToast();
+
+  const lessonGlobalId = `${unitId}-${lessonId}`;
+  
+  const [noteContent, setNoteContent] = useState('');
+  
+  useEffect(() => {
+    setNoteContent(lessonNotes[lessonGlobalId] || '');
+  }, [lessonGlobalId, lessonNotes]);
+
+  const handleSaveNote = () => {
+    saveLessonNote(lessonGlobalId, noteContent);
+    showToast('تم حفظ ملاحظاتك بنجاح', 'success');
+  };
 
   const unit = courseMap.find(u => u.id === unitId);
   const lesson = unit?.lessons.find(l => l.id === lessonId);
@@ -44,7 +64,6 @@ export function Lesson() {
     );
   }
 
-  const lessonGlobalId = `${unitId}-${lessonId}`;
   const isLessonComplete = completedLessons.includes(lessonGlobalId);
 
   const handleMarkCompleteAndContinue = () => {
@@ -90,10 +109,22 @@ export function Lesson() {
     content = unit4Content[lesson.id];
   } else if (unitId === 'unit-5') {
     content = unit5Content[lesson.id];
+  } else if (unitId === 'unit-6') {
+    content = unit6Content[lesson.id];
+  } else if (unitId === 'unit-7') {
+    content = unit7Content[lesson.id];
   } else if (unitId === 'unit-8') {
     content = unit8Content[lesson.id];
   } else if (unitId === 'unit-9') {
     content = unit9Content[lesson.id];
+  } else if (unitId === 'unit-10') {
+    content = unit10Content[lesson.id];
+  } else if (unitId === 'unit-11') {
+    content = unit11Content[lesson.id];
+  } else if (unitId === 'unit-12') {
+    content = unit12Content[lesson.id];
+  } else if (unitId === 'unit-13') {
+    content = unit13Content[lesson.id];
   } else if (unitId === 'unit-14') {
     content = <QuranicLab />;
   }
@@ -126,6 +157,35 @@ export function Lesson() {
             محتوى هذا الدرس قيد الإعداد...
           </div>
         )}
+      </div>
+
+      {/* Quick Question Section */}
+      {lesson.type !== 'quiz' && lesson.type !== 'interactive' && (
+        <QuickQuestion lessonId={lessonGlobalId} />
+      )}
+
+      {/* Lesson Notes Section */}
+      <div className="mt-12 bg-navy-900/50 p-6 md:p-8 rounded-2xl border border-navy-800 shadow-lg">
+        <div className="flex items-center gap-3 mb-4">
+          <StickyNote className="text-gold-500 w-6 h-6" />
+          <h3 className="text-xl font-bold text-white">ملاحظاتي الشخصية</h3>
+        </div>
+        <p className="text-navy-300 text-sm mb-4">اكتب هنا أية فوائد أو استفسارات خاصة بك في هذا الدرس للرجوع إليها لاحقاً.</p>
+        <textarea
+          value={noteContent}
+          onChange={(e) => setNoteContent(e.target.value)}
+          placeholder="اكتب ملاحظاتك هنا..."
+          className="w-full bg-navy-950 border border-navy-700 text-white p-4 rounded-xl min-h-[150px] focus:border-gold-500 focus:ring-1 focus:ring-gold-500 outline-none resize-y mb-4"
+        />
+        <div className="flex justify-end">
+          <button
+            onClick={handleSaveNote}
+            className="flex items-center gap-2 bg-navy-700 hover:bg-navy-600 text-white px-6 py-3 rounded-xl transition font-medium border border-navy-600"
+          >
+            <Save className="w-4 h-4" />
+            حفظ الملاحظات
+          </button>
+        </div>
       </div>
 
       {/* Navigation Footer */}

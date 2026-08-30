@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { signInAnonymously, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
 type UserRole = 'student' | 'admin' | null;
@@ -40,10 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setFirebaseUser(user);
     });
-
-    // Automatically sign in anonymously if not signed in
-    signInAnonymously(auth).catch(console.error);
-
+    
     return () => unsubscribe();
   }, []);
 

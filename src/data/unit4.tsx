@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Quote, AlertCircle, Info } from 'lucide-react';
+import { BookOpen, Quote, AlertCircle, Info, CheckCircle2 } from 'lucide-react';
 
 export const unit4Content: Record<string, React.ReactNode> = {
   'u4-l1': (

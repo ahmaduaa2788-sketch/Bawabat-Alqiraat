@@ -130,5 +130,149 @@ export const qiraatTree: Qari[] = [
         turuq: [{ id: 'shatibiyyah', name: 'الشاطبية', isBase: true }] 
       }
     ]
+  },
+  {
+    id: 'ibn-amir',
+    name: 'الإمام ابن عامر الشامي',
+    description: 'إمام القراءة بالشام، تابعي جليل أخذ عن بعض الصحابة.',
+    theme: {
+      gradient: 'from-rose-900 to-navy-900',
+      ring: 'ring-rose-500/50',
+      shadow: 'shadow-rose-500/30'
+    },
+    ruwat: [
+      { 
+        id: 'hisham', 
+        name: 'هشام', 
+        theme: { gradient: 'from-red-800 to-navy-900', ring: 'ring-red-400/50', shadow: 'shadow-red-400/30' },
+        turuq: [{ id: 'shatibiyyah', name: 'الشاطبية', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      },
+      { 
+        id: 'ibn-dhakwan', 
+        name: 'ابن ذكوان', 
+        theme: { gradient: 'from-rose-800 to-navy-900', ring: 'ring-rose-400/50', shadow: 'shadow-rose-400/30' },
+        turuq: [{ id: 'shatibiyyah', name: 'الشاطبية', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      }
+    ]
+  },
+  {
+    id: 'hamzah',
+    name: 'الإمام حمزة الكوفي',
+    description: 'إمام القراءة بالكوفة بعد عاصم والأعمش، عُرف بالورع والدقة.',
+    theme: {
+      gradient: 'from-indigo-900 to-navy-900',
+      ring: 'ring-indigo-500/50',
+      shadow: 'shadow-indigo-500/30'
+    },
+    ruwat: [
+      { 
+        id: 'khalaf', 
+        name: 'خلف', 
+        theme: { gradient: 'from-violet-800 to-navy-900', ring: 'ring-violet-400/50', shadow: 'shadow-violet-400/30' },
+        turuq: [{ id: 'shatibiyyah', name: 'الشاطبية', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      },
+      { 
+        id: 'khallad', 
+        name: 'خلاد', 
+        theme: { gradient: 'from-indigo-800 to-navy-900', ring: 'ring-indigo-400/50', shadow: 'shadow-indigo-400/30' },
+        turuq: [{ id: 'shatibiyyah', name: 'الشاطبية', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      }
+    ]
+  },
+  {
+    id: 'kisa-i',
+    name: 'الإمام الكسائي الكوفي',
+    description: 'إمام النحاة والقراء بالكوفة، أخذ القراءة عن حمزة.',
+    theme: {
+      gradient: 'from-pink-900 to-navy-900',
+      ring: 'ring-pink-500/50',
+      shadow: 'shadow-pink-500/30'
+    },
+    ruwat: [
+      { 
+        id: 'abu-al-harith', 
+        name: 'أبو الحارث', 
+        theme: { gradient: 'from-pink-800 to-navy-900', ring: 'ring-pink-400/50', shadow: 'shadow-pink-400/30' },
+        turuq: [{ id: 'shatibiyyah', name: 'الشاطبية', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      },
+      { 
+        id: 'duri-kisai', 
+        name: 'الدوري', 
+        theme: { gradient: 'from-fuchsia-800 to-navy-900', ring: 'ring-fuchsia-400/50', shadow: 'shadow-fuchsia-400/30' },
+        turuq: [{ id: 'shatibiyyah', name: 'الشاطبية', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      }
+    ]
+  },
+  {
+    id: 'abu-jafar',
+    name: 'الإمام أبو جعفر المدني',
+    description: 'من القراء الثلاثة المتممين للعشرة، وإمام القراءة بالمدينة قبل نافع.',
+    theme: {
+      gradient: 'from-slate-800 to-navy-900',
+      ring: 'ring-slate-400/50',
+      shadow: 'shadow-slate-400/30'
+    },
+    ruwat: [
+      { 
+        id: 'ibn-wardan', 
+        name: 'ابن وردان', 
+        theme: { gradient: 'from-gray-700 to-navy-900', ring: 'ring-gray-400/50', shadow: 'shadow-gray-400/30' },
+        turuq: [{ id: 'durrah', name: 'الدرة', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      },
+      { 
+        id: 'ibn-jammaz', 
+        name: 'ابن جماز', 
+        theme: { gradient: 'from-slate-700 to-navy-900', ring: 'ring-slate-400/50', shadow: 'shadow-slate-400/30' },
+        turuq: [{ id: 'durrah', name: 'الدرة', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      }
+    ]
+  },
+  {
+    id: 'yaqub',
+    name: 'الإمام يعقوب الحضرمي',
+    description: 'إمام القراءة بالبصرة بعد أبي عمرو.',
+    theme: {
+      gradient: 'from-sky-900 to-navy-900',
+      ring: 'ring-sky-500/50',
+      shadow: 'shadow-sky-500/30'
+    },
+    ruwat: [
+      { 
+        id: 'ruways', 
+        name: 'رويس', 
+        theme: { gradient: 'from-sky-800 to-navy-900', ring: 'ring-sky-400/50', shadow: 'shadow-sky-400/30' },
+        turuq: [{ id: 'durrah', name: 'الدرة', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      },
+      { 
+        id: 'rawh', 
+        name: 'روح', 
+        theme: { gradient: 'from-cyan-800 to-navy-900', ring: 'ring-cyan-400/50', shadow: 'shadow-cyan-400/30' },
+        turuq: [{ id: 'durrah', name: 'الدرة', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      }
+    ]
+  },
+  {
+    id: 'khalaf-bazzar',
+    name: 'الإمام خلف العاشر',
+    description: 'خلف بن هشام البزار الكوفي، له اختيار في القراءة خالف فيه حمزة.',
+    theme: {
+      gradient: 'from-zinc-800 to-navy-900',
+      ring: 'ring-zinc-500/50',
+      shadow: 'shadow-zinc-500/30'
+    },
+    ruwat: [
+      { 
+        id: 'ishaq', 
+        name: 'إسحاق', 
+        theme: { gradient: 'from-zinc-700 to-navy-900', ring: 'ring-zinc-400/50', shadow: 'shadow-zinc-400/30' },
+        turuq: [{ id: 'durrah', name: 'الدرة', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      },
+      { 
+        id: 'idris', 
+        name: 'إدريس', 
+        theme: { gradient: 'from-gray-800 to-navy-900', ring: 'ring-gray-400/50', shadow: 'shadow-gray-400/30' },
+        turuq: [{ id: 'durrah', name: 'الدرة', isBase: true }, { id: 'tayyibah', name: 'الطيبة', isBase: false }] 
+      }
+    ]
   }
 ];
