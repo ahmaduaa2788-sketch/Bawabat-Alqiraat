@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BookOpen, List, Info, ChevronDown, ChevronUp } from 'lucide-react';
-import { quranFarsh, FarshRule } from './quranFarsh';
+import { quranFarsh, FarshRule, surahsList } from './quranFarsh';
 
 type ChangeType = 'أصول' | 'فرش' | 'أصول وفرش';
 
@@ -124,25 +124,27 @@ const SurahSection = ({ title, intro, data, questionData }: { title: string, int
           {title}
         </h2>
         
-        <div className="prose prose-invert max-w-none mb-6">
-          <p className="text-navy-100">{intro}</p>
-          <div className="bg-blue-900/10 p-5 rounded-xl border border-blue-900/30 flex items-start gap-4 mt-4">
-            <Info className="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-blue-200 m-0 leading-relaxed">
-              هذا الجدول مستمد حرفياً من كتاب <strong>(الثمر اليانع في رواية ورش عن نافع)</strong> ليمشي آية بآية لعرض اختلافات ورش عن حفص.
-            </p>
+        {data.length > 0 && (
+          <div className="prose prose-invert max-w-none mb-6">
+            <p className="text-navy-100">{intro}</p>
+            <div className="bg-blue-900/10 p-5 rounded-xl border border-blue-900/30 flex items-start gap-4 mt-4">
+              <Info className="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-blue-200 m-0 leading-relaxed">
+                هذا الجدول مستمد حرفياً من كتاب <strong>(الثمر اليانع في رواية ورش عن نافع)</strong> ليمشي آية بآية لعرض اختلافات ورش عن حفص.
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
         {Object.keys(groupedData).length > 0 ? (
           <div className="space-y-3">
-            {Object.keys(groupedData).map(ayahStr => (
-               <FarshAyahCard key={ayahStr} ayahNumber={parseInt(ayahStr)} changes={groupedData[parseInt(ayahStr)]} />
+            {Object.keys(groupedData).map(Number).sort((a, b) => a - b).map(ayahNum => (
+               <FarshAyahCard key={ayahNum} ayahNumber={ayahNum} changes={groupedData[ayahNum]} />
             ))}
           </div>
         ) : (
           <div className="text-center py-10 border border-dashed border-navy-700 rounded-xl bg-navy-900/20">
-            <p className="text-navy-300">يتم حالياً استكمال رقمنة هذه السورة من الكتاب...</p>
+            <p className="text-navy-300">لا يوجد فرشيات لورش في هذه السورة</p>
           </div>
         )}
 
@@ -152,35 +154,17 @@ const SurahSection = ({ title, intro, data, questionData }: { title: string, int
   );
 };
 
-export const unit13Content: Record<string, React.ReactNode> = {
-  'u13-l1': <SurahSection title="سورة الفاتحة" intro="بيان اختلافات ورش عن حفص في سورة الفاتحة من كتاب الثمر اليانع." data={quranFarsh["الفاتحة"] || []} 
-    questionData={{
-      question: "كيف يقرأ ورش عن نافع كلمة (مَالِكِ) في سورة الفاتحة؟",
-      options: ["بإثبات الألف (مَالِكِ)", "بحذف الألف (مَلِكِ)", "بإمالة الألف", "بتسهيل الألف"],
-      correctAnswerIndex: 1,
-      explanation: "يقرأ ورش كلمة (مَلِكِ) بحذف الألف، بينما يقرأها حفص بإثبات الألف (مَالِكِ)."
-    }} 
-  />,
-  'u13-l2': <SurahSection title="سورة البقرة" intro="بيان اختلافات ورش عن حفص في سورة البقرة." data={quranFarsh["البقرة"] || []} 
-    questionData={{
-      question: "ما هو حكم ورش في كلمة (يُؤْمِنُونَ) ومثيلاتها؟",
-      options: ["تحقيق الهمزة", "تسهيل الهمزة", "إبدال الهمزة واواً", "حذف الهمزة"],
-      correctAnswerIndex: 2,
-      explanation: "ورش يبدل الهمزة الساكنة الواقعة فاءً للكلمة حرف مد من جنس حركة ما قبلها، فتبدل واواً في (يُومِنُونَ)."
-    }} 
-  />,
-  'u13-l3': <SurahSection title="سورة آل عمران" intro="بيان اختلافات ورش عن حفص في سورة آل عمران." data={quranFarsh["آل عمران"] || []} 
-    questionData={{
-      question: "ما حكم ورش في لفظ (التَّوْرَاةَ)؟",
-      options: ["الفتح قولا واحدا", "التقليل قولا واحدا", "الفتح والتقليل", "الإمالة الكبرى"],
-      correctAnswerIndex: 1,
-      explanation: "يقرأ ورش لفظ (التَّوْرَاةَ) بتقليل فتحة الراء والألف قولا واحدا حيثما وردت."
-    }} 
-  />,
-  'u13-l4': <SurahSection title="سورة النساء" intro="بيان اختلافات ورش عن حفص في سورة النساء." data={quranFarsh["النساء"] || []} questionData={{ question: "ما هو حكم ورش في قوله تعالى (يُضَاعِفْهَا) في سورة النساء؟", options: ["يُضَاعِفُهَا بالرفع", "يُضَعِّفْهَا بتشديد العين", "يُضَاعِفْهَا كحفص", "تُضَاعَفُ بالبناء للمجهول"], correctAnswerIndex: 1, explanation: "يقرأ ورش (يُضَعِّفْهَا) بحذف الألف وتشديد العين وكسرها." }} />,
-  'u13-l5': <SurahSection title="سورة المائدة إلى الأعراف" intro="بيان اختلافات ورش عن حفص في سور المائدة والأنعام والأعراف." data={[...(quranFarsh["المائدة"]||[]), ...(quranFarsh["الأنعام"]||[]), ...(quranFarsh["الأعراف"]||[])]} questionData={{ question: "كيف يقرأ ورش كلمة (يُصْرَفْ) في سورة الأنعام آية 16؟", options: ["يُصْرَفْ كحفص", "يَصْرِفْ بالبناء للمعلوم", "تُصْرَفْ بالتاء", "يَصْرَفَ بفتح الراء"], correctAnswerIndex: 1, explanation: "يقرأ ورش (يَصْرِفْ عَنْهُ) بفتح الياء وكسر الراء مبنياً للمعلوم." }} />,
-  'u13-l6': <SurahSection title="سورة الأنفال إلى النور" intro="بيان اختلافات ورش عن حفص في الأنفال والتوبة." data={[...(quranFarsh["الأنفال"]||[]), ...(quranFarsh["التوبة"]||[])]} questionData={{ question: "كيف يقرأ ورش (عُزَيْرٌ ابْنُ) في سورة التوبة؟", options: ["بالتنوين كحفص", "بترك التنوين وضم الراء", "بكسر الراء", "بحذف النون"], correctAnswerIndex: 1, explanation: "يقرأ ورش (عُزَيْرُ ابْنُ) بضم الراء من غير تنوين تفادياً لالتقاء الساكنين." }} />,
-  'u13-l7': <SurahSection title="سورة مريم إلى يس" intro="مختارات من فرشيات سور مريم وطه والفرقان والشعراء ويس." data={quranFarsh["مريم وما بعدها"] || []} questionData={{ question: "ما هو حكم قراءة (الْأَيْكَةِ) لورش في الشعراء؟", options: ["بإثبات الهمزتين كحفص", "بحذف الهمزتين (لَيْكَةِ)", "بتسهيل الهمزة", "بإبدال الهمزة ألفا"], correctAnswerIndex: 1, explanation: "يقرأ ورش (لَيْكَةِ) بلام مفتوحة من غير همزة وصل ولا قطع." }} />,
-  'u13-l8': <SurahSection title="سورة الصافات إلى الحجرات" intro="شواهد من الصافات وص والزخرف والفتح." data={quranFarsh["الصافات إلى الحجرات"] || []} questionData={{ question: "كيف يقرأ ورش لفظ (عِبَادُ) في الزخرف 19؟", options: ["عِبَادُ", "عِنْدَ", "عَبِيدُ", "عَبْدُ"], correctAnswerIndex: 1, explanation: "يقرأ ورش (عِنْدَ الرَّحْمَٰنِ) بكسر العين وسكون النون وفتح الدال." }} />,
-  'u13-l9': <SurahSection title="سورة ق إلى الناس" intro="أبرز الأحكام والفرشيات في المفصل مفصلة بالآية." data={quranFarsh["ق إلى الناس"] || []} questionData={{ question: "كيف يقرأ ورش قوله تعالى (كُفُوًا) في الإخلاص؟", options: ["كُفُئًا", "كُفْوًا", "كِفَاءً", "كُفْئًا"], correctAnswerIndex: 0, explanation: "يقرأ ورش (كُفُئًا) بضم الفاء والهمز بدلاً من الواو." }} />
-};
+
+export const unit13Content: Record<string, React.ReactNode> = {};
+
+surahsList.forEach((surah, idx) => {
+  const data = quranFarsh[surah] || [];
+  
+  unit13Content[`u13-l${idx + 1}`] = (
+    <SurahSection 
+      title={`سورة ${surah}`} 
+      intro={data.length > 0 ? `بيان اختلافات ورش عن حفص في سورة ${surah} من كتاب الثمر اليانع.` : ""} 
+      data={data} 
+    />
+  );
+});

@@ -4,13 +4,14 @@ import { useAuth } from '../context/AuthContext';
 import { Teacher, StudentRecord } from './Login';
 import { db } from '../lib/firebase';
 import { collection, query, getDocs, addDoc, updateDoc, doc, onSnapshot, deleteDoc } from 'firebase/firestore';
+import { CertificateBuilder } from '../components/CertificateBuilder';
 
 export function Admin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const { role, login, logout } = useAuth();
   
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'teachers' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'teachers' | 'settings' | 'certificates'>('dashboard');
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [students, setStudents] = useState<StudentRecord[]>([]);
   
@@ -135,7 +136,9 @@ export function Admin() {
         <div className="bg-navy-900 border border-navy-700 p-8 md:p-12 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-6">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-navy-800 rounded-full border-2 border-red-500/50 text-red-500 mb-2 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
             <ShieldAlert className="w-10 h-10" />
-          </div>
+    
+
+      </div>
           <h1 className="text-3xl font-bold text-white">لوحة الإدارة</h1>
           <p className="text-navy-300 text-sm">هذه المنطقة مخصصة للمدير العام فقط.</p>
           
@@ -188,6 +191,12 @@ export function Admin() {
           className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'settings' ? 'bg-gold-500 text-navy-950 shadow-md' : 'text-navy-300 hover:text-white hover:bg-navy-700'}`}
         >
           <Key className="w-4 h-4" /> الإعدادات والأمان
+        </button>
+        <button 
+          onClick={() => setActiveTab('certificates')}
+          className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'certificates' ? 'bg-gold-500 text-navy-950 shadow-md' : 'text-navy-300 hover:text-white hover:bg-navy-700'}`}
+        >
+          <CheckCircle2 className="w-4 h-4" /> نماذج الشهادات
         </button>
       </div>
 
@@ -343,6 +352,13 @@ export function Admin() {
         </div>
       )}
 
+
+      {activeTab === 'certificates' && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <CertificateBuilder />
+        </div>
+      )}
+      
       {activeTab === 'settings' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-xl">
           <div className="bg-navy-900 border border-navy-700 p-8 rounded-2xl">
