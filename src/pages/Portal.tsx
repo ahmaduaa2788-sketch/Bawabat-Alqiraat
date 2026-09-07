@@ -3,12 +3,27 @@ import { Link, useNavigate } from 'react-router-dom';
 import { qiraatTree } from '../data/qiraatTree';
 import { useProgress } from '../context/ProgressContext';
 import { useAuth } from '../context/AuthContext';
-import { Lock, BookOpen, ChevronLeft, RefreshCcw } from 'lucide-react';
+import { Lock, BookOpen, ChevronLeft, RefreshCcw, Search } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { StudentDashboard } from '../components/StudentDashboard';
+import { courseMap } from '../data/courseMap';
+import { useState } from 'react';
 
 export function Portal() {
-  const { activeQari, selectQari, resetProgress } = useProgress();
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const searchResults = searchQuery.trim() === '' ? [] : courseMap.flatMap(unit => {
+    return unit.lessons
+      .filter(lesson => lesson.title.includes(searchQuery) || unit.title.includes(searchQuery))
+      .map(lesson => ({
+        unitTitle: unit.title,
+        unitId: unit.id,
+        lessonTitle: lesson.title,
+        lessonId: lesson.id,
+      }));
+  }).slice(0, 5);
+
+  const { activeQari, selectQari, resetProgress, completedTuruq } = useProgress();
   const { role } = useAuth();
   const navigate = useNavigate();
 
@@ -23,6 +38,34 @@ export function Portal() {
       {role === 'student' && <StudentDashboard />}
 
       <div className="text-center space-y-6 py-12">
+
+      <div className="max-w-2xl mx-auto relative z-20">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="ابحث عن درس في منهج رواية ورش (مثال: مد البدل)..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-navy-900 border border-navy-700 text-white px-6 py-4 rounded-2xl pl-12 focus:outline-none focus:border-gold-500 shadow-lg"
+          />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400 w-6 h-6" />
+        </div>
+        {searchResults.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-navy-900 border border-navy-700 rounded-xl shadow-2xl overflow-hidden text-right z-50">
+            {searchResults.map((result, idx) => (
+              <button
+                key={idx}
+                onClick={() => navigate(`/lesson/nafi/warsh/shatibiyyah/${result.unitId}/${result.lessonId}`)}
+                className="w-full text-right p-4 border-b border-navy-800 hover:bg-navy-800 transition flex flex-col gap-1 last:border-0"
+              >
+                <span className="text-white font-bold">{result.lessonTitle}</span>
+                <span className="text-navy-400 text-sm">{result.unitTitle}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
         <div className="inline-flex items-center justify-center p-5 bg-navy-950/80 rounded-full mb-4 shadow-xl shadow-gold-500/10 border border-gold-500/20 backdrop-blur-sm">
           <BookOpen className="w-14 h-14 text-gold-500" />
         </div>
@@ -36,7 +79,7 @@ export function Portal() {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {qiraatTree.map((qari) => {
-          const isLocked = activeQari !== null && activeQari !== qari.id;
+          const isLocked = role !== 'admin' && completedTuruq.length === 0 && activeQari !== null && activeQari !== qari.id;
           const isActive = activeQari === qari.id;
 
           return (

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap');
+
 @import "tailwindcss";
 
 @theme {
@@ -43,3 +45,19 @@
   color: var(--color-navy-100);
 }
 
+
+
+@utility font-quran {
+  font-family: 'Amiri Quran', serif;
+}
+@utility perspective-1000 {
+  perspective: 1000px;
+}
+
+@utility transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+@utility backface-hidden {
+  backface-visibility: hidden;
+}

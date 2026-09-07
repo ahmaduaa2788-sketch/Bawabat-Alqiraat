@@ -4,7 +4,7 @@ service cloud.firestore {
     // Allow anyone to read teachers (for login)
     match /teachers/{teacherId} {
       allow read: if true;
-      allow write: if true; // In a real app, only admin could write
+      allow write: if true;
     }
     
     // Allow anyone to read/write students (for login and registration)
@@ -21,6 +21,12 @@ service cloud.firestore {
 
     // Allow anyone to read/write settings
     match /settings/{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Allow anyone to read/write content
+    match /content/{document=**} {
       allow read: if true;
       allow write: if true;
     }

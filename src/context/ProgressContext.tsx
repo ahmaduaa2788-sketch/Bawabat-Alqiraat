@@ -10,6 +10,8 @@ interface ProgressState {
   completedLessons: string[];
   lessonNotes: Record<string, string>;
   lessonTimeSpent: Record<string, number>;
+  streakDays: number;
+  lastActiveDate: string | null;
 }
 
 interface ProgressContextType extends ProgressState {
@@ -19,6 +21,7 @@ interface ProgressContextType extends ProgressState {
   completeLesson: (lessonGlobalId: string) => void;
   saveLessonNote: (lessonGlobalId: string, note: string) => void;
   updateLessonTime: (lessonGlobalId: string, seconds: number) => void;
+  updateStreak: () => void;
   resetProgress: () => void;
 }
 
@@ -28,7 +31,9 @@ const defaultState: ProgressState = {
   completedTuruq: [],
   completedLessons: [],
   lessonNotes: {},
-  lessonTimeSpent: {}
+  lessonTimeSpent: {},
+  streakDays: 0,
+  lastActiveDate: null
 };
 
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined);
@@ -37,7 +42,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const { userData, role } = useAuth();
   
   const [state, setState] = useState<ProgressState>(() => {
-    const saved = localStorage.getItem('qiraat_progress');
+    const saved = localStorage.getItem('qiraat_progress_guest') || localStorage.getItem('qiraat_progress');
     if (saved) {
       const parsed = JSON.parse(saved);
       return {
@@ -48,6 +53,8 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
         activeRawiByQari: parsed.activeRawiByQari || defaultState.activeRawiByQari,
         lessonNotes: parsed.lessonNotes || defaultState.lessonNotes,
         lessonTimeSpent: parsed.lessonTimeSpent || defaultState.lessonTimeSpent,
+        streakDays: parsed.streakDays || defaultState.streakDays,
+        lastActiveDate: parsed.lastActiveDate || defaultState.lastActiveDate,
       };
     }
     return defaultState;
@@ -71,22 +78,35 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
               activeRawiByQari: data.activeRawiByQari || defaultState.activeRawiByQari,
               lessonNotes: data.lessonNotes || defaultState.lessonNotes,
               lessonTimeSpent: data.lessonTimeSpent || defaultState.lessonTimeSpent,
+              streakDays: data.streakDays || defaultState.streakDays,
+              lastActiveDate: data.lastActiveDate || defaultState.lastActiveDate,
             });
           } else {
-            // Initialize in Firestore
-            await setDoc(docRef, state);
+            // New student: reset to default and initialize in Firestore
+            setState(defaultState);
+            await setDoc(docRef, defaultState);
           }
         } catch (error) {
           console.error("Error loading progress:", error);
         }
       };
       loadProgress();
+    } else if (role === 'admin' || !userData) {
+      // Avoid leaking local progress from other sessions
+      const storageKey = `qiraat_progress_${role === 'admin' ? 'admin' : 'guest'}`;
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        setState({ ...defaultState, ...JSON.parse(saved) });
+      } else {
+        setState(defaultState);
+      }
     }
   }, [role, userData?.id]);
 
   // Sync to local storage and Firestore when state changes
   useEffect(() => {
-    localStorage.setItem('qiraat_progress', JSON.stringify(state));
+    const storageKey = role === 'student' && userData?.id ? `qiraat_progress_${userData.id}` : `qiraat_progress_${role === 'admin' ? 'admin' : 'guest'}`;
+    localStorage.setItem(storageKey, JSON.stringify(state));
     
     if (role === 'student' && userData?.id) {
       const saveProgress = async () => {
@@ -159,12 +179,44 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
+  
+  const updateStreak = () => {
+    setState(prev => {
+      const today = new Date().toDateString();
+      if (prev.lastActiveDate === today) {
+        return prev;
+      }
+      
+      const lastActive = prev.lastActiveDate ? new Date(prev.lastActiveDate) : null;
+      let newStreak = prev.streakDays;
+      
+      if (lastActive) {
+        const diffTime = Math.abs(new Date().getTime() - lastActive.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        
+        if (diffDays === 1) {
+          newStreak += 1;
+        } else if (diffDays > 1) {
+          newStreak = 1;
+        }
+      } else {
+        newStreak = 1;
+      }
+
+      return {
+        ...prev,
+        streakDays: newStreak,
+        lastActiveDate: today
+      };
+    });
+  };
+
   const resetProgress = () => {
     setState(defaultState);
   };
 
   return (
-    <ProgressContext.Provider value={{ ...state, selectQari, selectRawi, completeTariq, completeLesson, saveLessonNote, updateLessonTime, resetProgress }}>
+    <ProgressContext.Provider value={{ ...state, selectQari, selectRawi, completeTariq, completeLesson, saveLessonNote, updateLessonTime, updateStreak, resetProgress }}>
       {children}
     </ProgressContext.Provider>
   );

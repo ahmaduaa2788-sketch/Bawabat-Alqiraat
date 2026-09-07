@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { courseMap } from '../data/courseMap';
+import { qalunCourseMap } from '../data/qalunCourseMap';
+import { qalunContentMap } from '../data/qalunCourseContent';
 import { unit0Content } from '../data/unit0';
 import { unit1Content } from '../data/unit1';
 import { unit2Content } from '../data/unit2';
@@ -18,11 +20,17 @@ import { unit13Content } from '../data/unit13';
 import { Unit0Quiz } from '../components/Unit0Quiz';
 import { Unit1Quiz } from '../components/Unit1Quiz';
 import { Unit2Quiz } from '../components/Unit2Quiz';
+import { Unit3Quiz } from '../components/Unit3Quiz';
+import { Unit8Quiz } from '../components/Unit8Quiz';
 import { QuranicLab } from '../components/QuranicLab';
+import { ComprehensiveQuiz } from '../components/ComprehensiveQuiz';
 import { QuickQuestion } from '../components/QuickQuestion';
-import { ArrowRight, ArrowLeft, CheckCircle, Save, StickyNote } from 'lucide-react';
+import { ArrowRight, ArrowLeft, CheckCircle, Save, StickyNote, Clock } from 'lucide-react';
 import { qiraatTree } from '../data/qiraatTree';
 import { useProgress } from '../context/ProgressContext';
+import { useAuth } from '../context/AuthContext';
+import { db } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { useToast } from '../context/ToastContext';
 
 export function Lesson() {
@@ -35,23 +43,60 @@ export function Lesson() {
   }>();
   
   const navigate = useNavigate();
-  const { completeLesson, completedLessons, lessonNotes, saveLessonNote } = useProgress();
+  const { completeLesson, completedLessons, lessonNotes, saveLessonNote, lessonTimeSpent, updateLessonTime } = useProgress();
   const { showToast } = useToast();
+  const { role } = useAuth();
 
-  const lessonGlobalId = `${unitId}-${lessonId}`;
+  const lessonGlobalId = `${rawiId}-${unitId}-${lessonId}`;
+  const courseBaseUrl = `/course/${qariId}/${rawiId}/${tariqId}`;
   
+  
+  const totalTime = lessonTimeSpent[lessonGlobalId] || 0;
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      updateLessonTime(lessonGlobalId, 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lessonGlobalId, updateLessonTime]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
   const [noteContent, setNoteContent] = useState('');
+  const [adminNote, setAdminNote] = useState('');
   
   useEffect(() => {
     setNoteContent(lessonNotes[lessonGlobalId] || '');
   }, [lessonGlobalId, lessonNotes]);
+  
+  useEffect(() => {
+    const fetchAdminNote = async () => {
+      try {
+        const docRef = doc(db, 'content', 'adminNotes');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data()[lessonGlobalId]) {
+          setAdminNote(docSnap.data()[lessonGlobalId]);
+        } else {
+          setAdminNote('');
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchAdminNote();
+  }, [lessonGlobalId]);
 
   const handleSaveNote = () => {
     saveLessonNote(lessonGlobalId, noteContent);
     showToast('تم حفظ ملاحظاتك بنجاح', 'success');
   };
 
-  const unit = courseMap.find(u => u.id === unitId);
+  const currentMap = rawiId === 'qalun' ? qalunCourseMap : courseMap;
+  const unit = currentMap.find(u => u.id === unitId);
   const lesson = unit?.lessons.find(l => l.id === lessonId);
   const lessonIndex = unit?.lessons.findIndex(l => l.id === lessonId) ?? -1;
 
@@ -85,7 +130,15 @@ export function Lesson() {
 
   // Render content based on unit and lesson type
   let content = null;
-  if (unitId === 'unit-0') {
+  if (rawiId === 'qalun') {
+    if (lesson?.type === 'quiz') {
+      content = <div className="p-8 bg-navy-800 rounded-xl text-center text-gold-400">قسم الاختبارات قيد التطوير لراوي قالون. <br/><button onClick={handleMarkCompleteAndContinue} className="mt-4 px-6 py-2 bg-gold-500 text-navy-900 rounded-lg">تخطي مؤقتاً</button></div>;
+    } else if (lessonId === 'lab-1') {
+      content = <QuranicLab />;
+    } else {
+      content = qalunContentMap[lesson.id];
+    }
+  } else if (unitId === 'unit-0') {
     if (lesson.type === 'quiz') {
       content = <Unit0Quiz onComplete={handleMarkCompleteAndContinue} />;
     } else {
@@ -104,7 +157,11 @@ export function Lesson() {
       content = unit2Content[lesson.id];
     }
   } else if (unitId === 'unit-3') {
-    content = unit3Content[lesson.id];
+    if (lesson.type === 'quiz') {
+      content = <Unit3Quiz onComplete={handleMarkCompleteAndContinue} />;
+    } else {
+      content = unit3Content[lesson.id];
+    }
   } else if (unitId === 'unit-4') {
     content = unit4Content[lesson.id];
   } else if (unitId === 'unit-5') {
@@ -114,7 +171,11 @@ export function Lesson() {
   } else if (unitId === 'unit-7') {
     content = unit7Content[lesson.id];
   } else if (unitId === 'unit-8') {
-    content = unit8Content[lesson.id];
+    if (lesson.type === 'quiz') {
+      content = <Unit8Quiz onComplete={handleMarkCompleteAndContinue} />;
+    } else {
+      content = unit8Content[lesson.id];
+    }
   } else if (unitId === 'unit-9') {
     content = unit9Content[lesson.id];
   } else if (unitId === 'unit-10') {
@@ -126,10 +187,35 @@ export function Lesson() {
   } else if (unitId === 'unit-13') {
     content = unit13Content[lesson.id];
   } else if (unitId === 'unit-14') {
-    content = <QuranicLab />;
+    if (lessonId === 'final-quiz') {
+      const displayMap = rawiId === 'qalun' ? qalunCourseMap : courseMap;
+      const totalLessons = displayMap.reduce((acc, u) => acc + (u.lessons?.length || 0), 0);
+      const completedCount = displayMap.reduce((acc, u) => {
+        return acc + (u.lessons?.filter(l => completedLessons.includes(`${rawiId}-${u.id}-${l.id}`)).length || 0);
+      }, 0);
+      
+      const isLessonCompleted = completedLessons.includes(`${rawiId}-${unitId}-${lessonId}`);
+      const completedOtherLessons = completedCount - (isLessonCompleted ? 1 : 0);
+      const canAccessLesson = role === 'admin' || completedOtherLessons >= totalLessons - 1;
+
+      if (!canAccessLesson) {
+        content = (
+          <div className="bg-navy-950/80 p-8 rounded-2xl border border-red-500/30 text-center max-w-2xl mx-auto shadow-2xl">
+            <Lock className="w-16 h-16 mx-auto text-red-500 mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-4">الاختبار مقفل</h2>
+            <p className="text-navy-300">يجب عليك إتمام جميع الدروس والاختبارات القصيرة السابقة قبل دخول الاختبار الشامل.</p>
+            <Link to={courseBaseUrl} className="mt-6 inline-block bg-navy-800 text-white px-6 py-2 rounded-xl hover:bg-navy-700 transition">العودة للمسار</Link>
+          </div>
+        );
+      } else {
+        content = <ComprehensiveQuiz onComplete={handleMarkCompleteAndContinue} />;
+      }
+    } else {
+      content = <QuranicLab />;
+    }
   }
 
-  const courseBaseUrl = `/course/${qariId}/${rawiId}/${tariqId}`;
+  
 
   return (
     <div className="max-w-4xl mx-auto pb-20 animate-in fade-in duration-500">

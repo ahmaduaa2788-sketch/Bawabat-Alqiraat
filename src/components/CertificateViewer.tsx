@@ -3,6 +3,7 @@ import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Download, Award, Printer } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface CertificateProps {
   studentName: string;
@@ -33,6 +34,31 @@ export const CertificateViewer: React.FC<CertificateProps> = ({ studentName, cou
     };
     fetchConfig();
   }, []);
+
+
+  const handleDownloadPDF = async () => {
+    if (!certificateRef.current) return;
+    try {
+      const canvas = await html2canvas(certificateRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: null
+      });
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+      
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`شهادة_${studentName.replace(/\s/g, '_')}.pdf`);
+    } catch (err) {
+      console.error('Error generating PDF', err);
+      alert('حدث خطأ أثناء تحميل الشهادة كملف PDF.');
+    }
+  };
 
   const handleDownload = async () => {
     if (!certificateRef.current) return;
@@ -100,7 +126,13 @@ export const CertificateViewer: React.FC<CertificateProps> = ({ studentName, cou
             onClick={handleDownload}
             className="flex items-center gap-2 bg-gold-500 text-navy-900 px-4 py-2 rounded-lg font-bold hover:bg-gold-400 transition print:hidden shadow-lg shadow-gold-500/20"
           >
-            <Download className="w-4 h-4" /> تحميل كصورة
+            <Download className="w-4 h-4" /> صورة
+          </button>
+          <button 
+            onClick={handleDownloadPDF}
+            className="flex items-center gap-2 bg-rose-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-rose-500 transition print:hidden shadow-lg shadow-rose-600/20"
+          >
+            <Download className="w-4 h-4" /> PDF
           </button>
           {onClose && (
             <button onClick={onClose} className="px-4 py-2 bg-navy-800 text-navy-200 rounded-lg font-bold print:hidden">إغلاق</button>

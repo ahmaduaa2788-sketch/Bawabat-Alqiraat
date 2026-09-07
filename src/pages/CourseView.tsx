@@ -1,15 +1,18 @@
 import React from 'react';
 import { courseMap } from '../data/courseMap';
+import { qalunCourseMap } from '../data/qalunCourseMap';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { BookOpen, ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight, CheckCircle, Lock } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useProgress } from '../context/ProgressContext';
+import { useAuth } from '../context/AuthContext';
 import { qiraatTree } from '../data/qiraatTree';
 
 export function CourseView() {
   const { qariId, rawiId, tariqId } = useParams<{ qariId: string; rawiId: string; tariqId: string }>();
   const navigate = useNavigate();
   const { completeTariq, completedTuruq, completedLessons } = useProgress();
+  const { role } = useAuth();
 
   const qari = qiraatTree.find(q => q.id === qariId);
   const rawi = qari?.ruwat.find(r => r.id === rawiId);
@@ -26,17 +29,50 @@ export function CourseView() {
     );
   }
 
-  // Currently we only have content for nafi/warsh/shatibiyyah
-  const hasContent = qariId === 'nafi' && rawiId === 'warsh' && tariqId === 'shatibiyyah';
-  const displayMap = hasContent ? courseMap : [];
+  // Determine which map to display based on rawi
+  let displayMap: any[] = [];
+  const hasContent = rawiId === 'warsh' || rawiId === 'qalun';
+  if (rawiId === 'warsh') {
+    displayMap = courseMap;
+  } else if (rawiId === 'qalun') {
+    displayMap = qalunCourseMap;
+  }
 
   const handleCompleteCourse = () => {
     completeTariq(qariId, rawiId, tariqId);
     navigate(`/qari/${qariId}`);
   };
 
+  const totalLessons = displayMap.reduce((acc, unit) => acc + (unit.lessons?.length || 0), 0);
+  const completedCount = displayMap.reduce((acc, unit) => {
+    return acc + (unit.lessons?.filter(l => completedLessons.includes(`${rawiId}-${unit.id}-${l.id}`)).length || 0);
+  }, 0);
+    const isAllLessonsCompleted = totalLessons > 0 && completedCount === totalLessons;
+  const canTakeExam = isAllLessonsCompleted || role === 'admin';
+  const progressPercentage = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
   return (
     <div className="max-w-4xl mx-auto space-y-12 pb-20">
+      {hasContent && (
+        <div className="bg-navy-900/50 p-6 rounded-2xl border border-navy-700/50 shadow-lg">
+          <div className="flex justify-between items-end mb-3">
+            <div>
+              <h3 className="text-lg font-bold text-white mb-1">نسبة الإنجاز في هذا المسار</h3>
+              <p className="text-sm text-navy-300">أكملت {completedCount} من أصل {totalLessons} درس</p>
+            </div>
+            <div className="text-3xl font-bold text-gold-400">{progressPercentage}%</div>
+          </div>
+          <div className="w-full bg-navy-950 rounded-full h-3 overflow-hidden border border-navy-800">
+            <div 
+              className="bg-gradient-to-l from-gold-400 to-gold-600 h-3 rounded-full transition-all duration-1000 ease-out relative"
+              style={{ width: `${progressPercentage}%` }}
+            >
+              <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-4 py-4 border-b border-navy-800">
         <Link to={`/qari/${qariId}`} className="p-2 bg-navy-800 hover:bg-navy-700 rounded-lg transition-colors text-navy-300 hover:text-white">
           <ChevronRight className="w-6 h-6" />
@@ -77,7 +113,7 @@ export function CourseView() {
       ) : (
         <div className="space-y-8 relative before:absolute before:inset-0 before:ml-auto before:mr-auto before:-translate-x-1/2 before:w-1 before:bg-navy-800 before:z-0 md:before:mr-[40px] md:before:-translate-x-0">
           {displayMap.map((unit, index) => {
-            const unitCompletedLessons = unit.lessons.filter(l => completedLessons.includes(`${unit.id}-${l.id}`)).length;
+            const unitCompletedLessons = unit.lessons.filter(l => completedLessons.includes(`${rawiId}-${unit.id}-${l.id}`)).length;
             const progressPercentage = unit.lessons.length > 0 ? (unitCompletedLessons / unit.lessons.length) * 100 : 0;
             const isUnitComplete = progressPercentage === 100;
             
@@ -138,21 +174,64 @@ export function CourseView() {
                 {unit.lessons.length > 0 && (
                   <div className="space-y-3 bg-navy-900/50 p-4 rounded-xl border border-navy-800/50 shadow-inner">
                     <h3 className="font-semibold text-navy-200 mb-3 text-sm uppercase tracking-wide">الدروس المتاحة:</h3>
-                    {unit.lessons.map((lesson, i) => (
-                      <Link
-                        key={lesson.id}
-                        to={`/lesson/${qariId}/${rawiId}/${tariqId}/${unit.id}/${lesson.id}`}
-                        className="flex items-center justify-between p-3 rounded-lg bg-navy-800/50 hover:bg-navy-700 shadow-sm border border-navy-700/50 hover:border-gold-500/30 transition group/link"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-full bg-navy-950 text-gold-500 flex items-center justify-center text-xs font-bold border border-gold-500/20 shadow-sm">
-                            {i + 1}
-                          </div>
-                          <span className="font-medium text-navy-100 group-hover/link:text-white">{lesson.title}</span>
+                    {unit.lessons.map((lesson, i) => {
+                      const isLessonCompleted = completedLessons.includes(`${rawiId}-${unit.id}-${lesson.id}`);
+                      const isFinalQuiz = lesson.id === 'final-quiz';
+                      
+                      // Check if all OTHER lessons are complete
+                      let canAccessLesson = true;
+                      let lockReason = "";
+                      
+                      if (isFinalQuiz && role !== 'admin') {
+                        // total lessons minus 1 (the final quiz itself)
+                        const completedOtherLessons = completedCount - (isLessonCompleted ? 1 : 0);
+                        if (completedOtherLessons < totalLessons - 1) {
+                          canAccessLesson = false;
+                          lockReason = "يجب اجتياز جميع الدروس والاختبارات القصيرة أولاً";
+                        }
+                      }
+                      
+                      return (
+                        <div key={lesson.id} className="relative flex items-center group/lesson">
+                          {/* Tree branch connector */}
+                          <div className="absolute right-3.5 top-1/2 w-4 border-t-2 border-navy-700 -z-10"></div>
+                          <div className="absolute right-3.5 top-0 bottom-1/2 border-r-2 border-navy-700 -z-10"></div>
+                          {i !== unit.lessons.length - 1 && (
+                            <div className="absolute right-3.5 top-1/2 bottom-0 border-r-2 border-navy-700 -z-10"></div>
+                          )}
+                          
+                                                    {canAccessLesson ? (
+                            <Link
+                              to={`/lesson/${qariId}/${rawiId}/${tariqId}/${unit.id}/${lesson.id}`}
+                              className={`flex-1 mr-8 flex items-center justify-between p-3 rounded-xl shadow-sm border transition-all ${isLessonCompleted ? 'bg-green-500/10 border-green-500/30 hover:bg-green-500/20' : 'bg-navy-800/80 border-navy-700 hover:border-gold-500/50 hover:bg-navy-700/80'}`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border shadow-sm ${isLessonCompleted ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-navy-950 text-gold-500 border-gold-500/30'}`}>
+                                  {isLessonCompleted ? <CheckCircle className="w-4 h-4" /> : i + 1}
+                                </div>
+                                <div>
+                                  <span className={`font-bold ${isLessonCompleted ? 'text-green-300' : 'text-white'}`}>{lesson.title}</span>
+                                  {isLessonCompleted && <p className="text-xs text-green-500 mt-0.5">مكتمل (اضغط للمراجعة)</p>}
+                                </div>
+                              </div>
+                              <ChevronLeft className={`w-5 h-5 ${isLessonCompleted ? 'text-green-500' : 'text-navy-400 group-hover/lesson:text-gold-500'} transition-transform group-hover/lesson:-translate-x-1`} />
+                            </Link>
+                          ) : (
+                            <div className="flex-1 mr-8 flex items-center justify-between p-3 rounded-xl shadow-sm border transition-all bg-navy-900/50 border-navy-800 opacity-60 cursor-not-allowed">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border shadow-sm bg-navy-950 text-navy-500 border-navy-700">
+                                  <Lock className="w-4 h-4" />
+                                </div>
+                                <div>
+                                  <span className="font-bold text-navy-400">{lesson.title}</span>
+                                  <p className="text-xs text-red-400/80 mt-0.5">{lockReason}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <ChevronLeft className="w-5 h-5 text-navy-400 group-hover/link:text-gold-500 transition-transform group-hover/link:-translate-x-1" />
-                      </Link>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -177,12 +256,18 @@ export function CourseView() {
                 بعد الانتهاء من جميع الدروس واجتياز اختبارات الأبواب والمختبر القرآني، تقدم للاختبار النظري النهائي لإتمام دراسة هذا الطريق.
               </p>
               {!isComplete ? (
-                <Link 
-                  to={`/exam/${qariId}/${rawiId}/${tariqId}`}
-                  className="inline-block bg-gold-500 text-navy-950 font-bold px-8 py-3 rounded-xl hover:bg-gold-400 transition shadow-lg shadow-gold-500/20 w-full md:w-auto text-lg"
-                >
-                  الدخول للاختبار النظري الشامل
-                </Link>
+                canTakeExam ? (
+                  <Link 
+                    to={`/exam/${qariId}/${rawiId}/${tariqId}`}
+                    className="inline-block bg-gold-500 text-navy-950 font-bold px-8 py-3 rounded-xl hover:bg-gold-400 transition shadow-lg shadow-gold-500/20 w-full md:w-auto text-lg"
+                  >
+                    الدخول للاختبار النظري الشامل
+                  </Link>
+                ) : (
+                  <div className="inline-block bg-navy-800 text-navy-400 font-bold px-8 py-3 rounded-xl border border-navy-700 w-full md:w-auto text-lg cursor-not-allowed">
+                    يجب إتمام جميع الدروس أولاً 🔒
+                  </div>
+                )
               ) : (
                 <div className="bg-green-500/10 text-green-400 font-bold px-8 py-4 rounded-xl border border-green-500/30 flex items-center justify-center gap-3 text-lg backdrop-blur-sm">
                   <CheckCircle className="w-6 h-6" />

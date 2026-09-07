@@ -5,13 +5,15 @@ import { Teacher, StudentRecord } from './Login';
 import { db } from '../lib/firebase';
 import { collection, query, getDocs, addDoc, updateDoc, doc, onSnapshot, deleteDoc } from 'firebase/firestore';
 import { CertificateBuilder } from '../components/CertificateBuilder';
+import { AdminQuestionsManager } from '../components/AdminQuestionsManager';
+import { AdminLessonsManager } from '../components/AdminLessonsManager';
 
 export function Admin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const { role, login, logout } = useAuth();
   
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'teachers' | 'settings' | 'certificates'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'lessons' | 'questions' | 'teachers' | 'settings' | 'certificates'>('dashboard');
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [students, setStudents] = useState<StudentRecord[]>([]);
   
@@ -179,6 +181,24 @@ export function Admin() {
           className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all whitespace-nowrap ${activeTab === 'dashboard' ? 'bg-gold-500 text-navy-950 shadow-md' : 'text-navy-300 hover:text-white hover:bg-navy-700'}`}
         >
           نظرة عامة
+        </button>
+        <button 
+          onClick={() => setActiveTab('lessons')}
+          className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'lessons' ? 'bg-gold-500 text-navy-950 shadow-md' : 'text-navy-300 hover:text-white hover:bg-navy-700'}`}
+        >
+          📝 إدارة محتوى الدروس
+        </button>
+        <button 
+          onClick={() => setActiveTab('questions')}
+          className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 $      {activeTab === 'lessons' && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <AdminLessonsManager />
+        </div>
+      )}
+      
+      {activeTab === 'questions' ? 'bg-gold-500 text-navy-950 shadow-md' : 'text-navy-300 hover:text-white hover:bg-navy-700'}`}
+        >
+          ❓ إدارة بنك الأسئلة
         </button>
         <button 
           onClick={() => setActiveTab('teachers')}
@@ -356,6 +376,12 @@ export function Admin() {
       {activeTab === 'certificates' && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <CertificateBuilder />
+        </div>
+      )}
+      
+      {activeTab === 'questions' && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <AdminQuestionsManager />
         </div>
       )}
       

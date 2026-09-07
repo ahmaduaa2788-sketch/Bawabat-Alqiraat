@@ -171,11 +171,20 @@ export const courseMap: Unit[] = [
   },
   
   {
+    id: "unit-13",
+    title: "الباب الثالث عشر: الوقف والابتداء",
+    description: "معرفة الوقوف ومواضع الابتداء الجائزة والممنوعة.",
+    lessons: [
+      { id: "waqf-tool", title: "أداة الوقف والابتداء التفاعلية", type: "interactive" }
+    ]
+  },
+  {
     id: "unit-14",
     title: "المختبر القرآني",
     description: "تطبيق عملي: شواهد قرآنية وتحليلها على أصول ورش.",
     lessons: [
-      { id: "lab-1", title: "المختبر القرآني (تطبيقات شاملة)", type: "interactive" }
+      { id: "lab-1", title: "المختبر القرآني (تطبيقات شاملة)", type: "interactive" },
+      { id: "final-quiz", title: "الاختبار الشامل", type: "quiz" }
     ]
   }
 ];

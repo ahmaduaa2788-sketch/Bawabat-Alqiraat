@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { BookOpen, Menu, X, CheckCircle2, LogOut, User, Sun, Moon } from 'lucide-react';
 import { courseMap } from '../data/courseMap';
+import { qalunCourseMap } from '../data/qalunCourseMap';
 import { cn } from '../lib/utils';
 import { qiraatTree } from '../data/qiraatTree';
 import { useAuth } from '../context/AuthContext';
@@ -141,7 +142,7 @@ export function Layout() {
               </Link>
 
               <div className="space-y-8">
-                {courseMap.map((unit) => (
+                { (rawiId === 'qalun' ? qalunCourseMap : courseMap).map((unit) => (
                   <div key={unit.id} className="space-y-3">
                     <h3 className="font-bold text-navy-200 px-2 text-sm uppercase tracking-wider flex items-center gap-2">
                       <span className="w-2 h-2 bg-gold-500 rounded-full inline-block shadow-[0_0_5px_#D4AF37]"></span>

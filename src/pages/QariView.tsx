@@ -2,12 +2,14 @@ import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { qiraatTree } from '../data/qiraatTree';
 import { useProgress } from '../context/ProgressContext';
+import { useAuth } from '../context/AuthContext';
 import { Lock, BookOpen, ChevronLeft, ChevronRight, Unlock } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export function QariView() {
   const { qariId } = useParams<{ qariId: string }>();
   const navigate = useNavigate();
+  const { role } = useAuth();
   const { activeRawiByQari, selectRawi, completedTuruq } = useProgress();
 
   const qari = qiraatTree.find(q => q.id === qariId);
@@ -31,6 +33,8 @@ export function QariView() {
 
   // Determine if a rawi should be locked
   const getRawiLockStatus = (rawiId: string) => {
+    if (role === 'admin') return false;
+    if (completedTuruq.length > 0) return false;
     // If this rawi is complete, it is never locked.
     if (isBaseTariqComplete(rawiId)) return false;
     
@@ -131,7 +135,7 @@ export function QariView() {
 
                 <div className={cn(
                   "p-6 flex-1 flex flex-col gap-4 border-t transition-all duration-500",
-                  isRawiActive || isRawiComplete 
+                  role === 'admin' || isRawiActive || isRawiComplete 
                     ? "opacity-100 translate-y-0 border-navy-700/50 bg-navy-800/50" 
                     : "opacity-50 pointer-events-none grayscale border-navy-800 bg-navy-900/20 hidden"
                 )}>
@@ -145,9 +149,10 @@ export function QariView() {
                       isTariqLocked = !allBaseTuruqComplete;
                       lockReason = "يجب إنهاء الشاطبية لجميع الرواة أولاً";
                     }
+                    if (role === 'admin') isTariqLocked = false;
 
                     const isTariqComplete = completedTuruq.includes(`${qari.id}-${rawi.id}-${tariq.id}`);
-                    const isActiveRawiOrComplete = isRawiActive || isRawiComplete;
+                    const isActiveRawiOrComplete = role === 'admin' || isRawiActive || isRawiComplete;
 
                     return (
                       <div 
