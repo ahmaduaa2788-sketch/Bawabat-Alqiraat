@@ -25,7 +25,7 @@ import { Unit8Quiz } from '../components/Unit8Quiz';
 import { QuranicLab } from '../components/QuranicLab';
 import { ComprehensiveQuiz } from '../components/ComprehensiveQuiz';
 import { QuickQuestion } from '../components/QuickQuestion';
-import { ArrowRight, ArrowLeft, CheckCircle, Save, StickyNote, Clock } from 'lucide-react';
+import { ArrowRight, ArrowLeft, CheckCircle, Save, StickyNote, Clock, Lock } from 'lucide-react';
 import { qiraatTree } from '../data/qiraatTree';
 import { useProgress } from '../context/ProgressContext';
 import { useAuth } from '../context/AuthContext';
@@ -187,8 +187,7 @@ export function Lesson() {
   } else if (unitId === 'unit-13') {
     content = unit13Content[lesson.id];
   } else if (unitId === 'unit-14') {
-    if (lessonId === 'final-quiz') {
-      const displayMap = rawiId === 'qalun' ? qalunCourseMap : courseMap;
+    const displayMap = rawiId === 'qalun' ? qalunCourseMap : courseMap;
       const totalLessons = displayMap.reduce((acc, u) => acc + (u.lessons?.length || 0), 0);
       const completedCount = displayMap.reduce((acc, u) => {
         return acc + (u.lessons?.filter(l => completedLessons.includes(`${rawiId}-${u.id}-${l.id}`)).length || 0);
@@ -196,23 +195,25 @@ export function Lesson() {
       
       const isLessonCompleted = completedLessons.includes(`${rawiId}-${unitId}-${lessonId}`);
       const completedOtherLessons = completedCount - (isLessonCompleted ? 1 : 0);
-      const canAccessLesson = role === 'admin' || completedOtherLessons >= totalLessons - 1;
+      // We subtract 2 because there are 2 lessons in unit 14 (lab-1 and final-quiz)
+      const canAccessLesson = role === 'admin' || completedOtherLessons >= totalLessons - 2;
 
       if (!canAccessLesson) {
         content = (
           <div className="bg-navy-950/80 p-8 rounded-2xl border border-red-500/30 text-center max-w-2xl mx-auto shadow-2xl">
             <Lock className="w-16 h-16 mx-auto text-red-500 mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-4">الاختبار مقفل</h2>
-            <p className="text-navy-300">يجب عليك إتمام جميع الدروس والاختبارات القصيرة السابقة قبل دخول الاختبار الشامل.</p>
+            <h2 className="text-2xl font-bold text-white mb-4">القسم مقفل</h2>
+            <p className="text-navy-300">يجب عليك إتمام جميع الدروس والاختبارات القصيرة السابقة أولاً.</p>
             <Link to={courseBaseUrl} className="mt-6 inline-block bg-navy-800 text-white px-6 py-2 rounded-xl hover:bg-navy-700 transition">العودة للمسار</Link>
           </div>
         );
       } else {
-        content = <ComprehensiveQuiz onComplete={handleMarkCompleteAndContinue} />;
+        if (lessonId === 'final-quiz') {
+          content = <ComprehensiveQuiz onComplete={handleMarkCompleteAndContinue} />;
+        } else {
+          content = <QuranicLab />;
+        }
       }
-    } else {
-      content = <QuranicLab />;
-    }
   }
 
   

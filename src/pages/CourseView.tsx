@@ -176,16 +176,15 @@ export function CourseView() {
                     <h3 className="font-semibold text-navy-200 mb-3 text-sm uppercase tracking-wide">الدروس المتاحة:</h3>
                     {unit.lessons.map((lesson, i) => {
                       const isLessonCompleted = completedLessons.includes(`${rawiId}-${unit.id}-${lesson.id}`);
-                      const isFinalQuiz = lesson.id === 'final-quiz';
+                      const isFinalSection = unit.id === 'unit-14' || unit.id === 'final';
                       
                       // Check if all OTHER lessons are complete
                       let canAccessLesson = true;
                       let lockReason = "";
                       
-                      if (isFinalQuiz && role !== 'admin') {
-                        // total lessons minus 1 (the final quiz itself)
+                      if (role !== 'admin' && isFinalSection) {
                         const completedOtherLessons = completedCount - (isLessonCompleted ? 1 : 0);
-                        if (completedOtherLessons < totalLessons - 1) {
+                        if (completedOtherLessons < totalLessons - unit.lessons.length) {
                           canAccessLesson = false;
                           lockReason = "يجب اجتياز جميع الدروس والاختبارات القصيرة أولاً";
                         }

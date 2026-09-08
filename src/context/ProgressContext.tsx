@@ -40,6 +40,7 @@ const ProgressContext = createContext<ProgressContextType | undefined>(undefined
 
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const { userData, role } = useAuth();
+  const [loadedUserId, setLoadedUserId] = useState<string | null>(null);
   
   const [state, setState] = useState<ProgressState>(() => {
     const saved = localStorage.getItem('qiraat_progress_guest') || localStorage.getItem('qiraat_progress');
@@ -62,6 +63,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
   // Load from Firestore when user logs in
   useEffect(() => {
+    setLoadedUserId(null);
     if (role === 'student' && userData?.id) {
       const loadProgress = async () => {
         try {
@@ -88,6 +90,8 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
           }
         } catch (error) {
           console.error("Error loading progress:", error);
+        } finally {
+          setLoadedUserId(userData.id!);
         }
       };
       loadProgress();
@@ -100,11 +104,15 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       } else {
         setState(defaultState);
       }
+      setLoadedUserId(role === 'admin' ? 'admin' : 'guest');
     }
   }, [role, userData?.id]);
 
   // Sync to local storage and Firestore when state changes
   useEffect(() => {
+    const currentId = role === 'student' && userData?.id ? userData.id : (role === 'admin' ? 'admin' : 'guest');
+    if (loadedUserId !== currentId) return;
+
     const storageKey = role === 'student' && userData?.id ? `qiraat_progress_${userData.id}` : `qiraat_progress_${role === 'admin' ? 'admin' : 'guest'}`;
     localStorage.setItem(storageKey, JSON.stringify(state));
     
@@ -119,7 +127,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       };
       saveProgress();
     }
-  }, [state, role, userData?.id]);
+  }, [state, role, userData?.id, loadedUserId]);
 
   const selectQari = (qariId: string) => {
     setState(prev => ({ ...prev, activeQari: prev.activeQari || qariId }));
