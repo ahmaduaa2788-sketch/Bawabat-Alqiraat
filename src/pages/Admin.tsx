@@ -201,13 +201,7 @@ export function Admin() {
         </button>
         <button 
           onClick={() => setActiveTab('questions')}
-          className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 $      {activeTab === 'lessons' && (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <AdminLessonsManager />
-        </div>
-      )}
-      
-      {activeTab === 'questions' ? 'bg-gold-500 text-navy-950 shadow-md' : 'text-navy-300 hover:text-white hover:bg-navy-700'}`}
+          className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'questions' ? 'bg-gold-500 text-navy-950 shadow-md' : 'text-navy-300 hover:text-white hover:bg-navy-700'}`}
         >
           ❓ إدارة بنك الأسئلة
         </button>
@@ -230,6 +224,12 @@ export function Admin() {
           <CheckCircle2 className="w-4 h-4" /> نماذج الشهادات
         </button>
       </div>
+
+      {activeTab === 'lessons' && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <AdminLessonsManager />
+        </div>
+      )}
 
       {activeTab === 'dashboard' && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
