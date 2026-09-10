@@ -16,6 +16,7 @@ export function Admin() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'lessons' | 'questions' | 'teachers' | 'settings' | 'certificates'>('dashboard');
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [students, setStudents] = useState<StudentRecord[]>([]);
+  const [studentProgressMap, setStudentProgressMap] = useState<Record<string, any>>({});
   
   // Settings tab
   const [newAdminPassword, setNewAdminPassword] = useState('');
@@ -44,9 +45,19 @@ export function Admin() {
         setStudents(studentsData);
       });
 
+      // Real-time listener for student progress
+      const unsubscribeProgress = onSnapshot(collection(db, 'studentProgress'), (snapshot) => {
+        const progressData: Record<string, any> = {};
+        snapshot.forEach((doc) => {
+          progressData[doc.id] = doc.data();
+        });
+        setStudentProgressMap(progressData);
+      });
+
       return () => {
         unsubscribeTeachers();
         unsubscribeStudents();
+        unsubscribeProgress();
       };
     }
   }, [role]);
@@ -245,6 +256,8 @@ export function Admin() {
                     <th className="pb-4 font-bold">الطالب</th>
                     <th className="pb-4 font-bold">المعلم</th>
                     <th className="pb-4 font-bold">المسار الحالي</th>
+                    <th className="pb-4 font-bold text-center">الدروس المنجزة</th>
+                    <th className="pb-4 font-bold text-center">أيام التفاعل</th>
                     <th className="pb-4 font-bold">الحالة</th>
                     <th className="pb-4 font-bold">الإجراء</th>
                   </tr>
@@ -255,6 +268,12 @@ export function Admin() {
                       <td className="py-4 text-white font-bold">{student.name}</td>
                       <td className="py-4 text-navy-200">{student.teacherName}</td>
                       <td className="py-4 text-gold-400">{student.currentPath}</td>
+                      <td className="py-4 text-center font-bold text-navy-200">
+                        {studentProgressMap[student.id]?.completedLessons?.length || 0}
+                      </td>
+                      <td className="py-4 text-center font-bold text-navy-200">
+                        {studentProgressMap[student.id]?.streakDays || 0}
+                      </td>
                       <td className="py-4">
                         {student.status === 'نشط' ? (
                           <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs border border-green-500/30">نشط</span>
