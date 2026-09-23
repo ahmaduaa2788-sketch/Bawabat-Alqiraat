@@ -30,5 +30,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if true;
     }
+
+    // Allow reading and modifying custom lesson contents and educational materials
+    match /lessonContents/{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
   }
 }

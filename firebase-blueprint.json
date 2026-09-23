@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "Teacher": {
+      "title": "Teacher",
+      "description": "Registered teacher or sheikh",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["name", "code", "active"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Student profile",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "teacherCode": { "type": "string" },
+        "teacherName": { "type": "string" },
+        "currentPath": { "type": "string" },
+        "status": { "type": "string" },
+        "registeredAt": { "type": "string" }
+      },
+      "required": ["name", "teacherCode"]
+    },
+    "StudentProgress": {
+      "title": "StudentProgress",
+      "description": "Student progress data",
+      "type": "object",
+      "properties": {
+        "completedLessons": { "type": "array" },
+        "streakDays": { "type": "number" },
+        "lastActive": { "type": "string" }
+      }
+    },
+    "LessonContent": {
+      "title": "LessonContent",
+      "description": "Customized and corrected educational material for a lesson",
+      "type": "object",
+      "properties": {
+        "lessonGlobalId": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "ruleSummary": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "updatedBy": { "type": "string" }
+      },
+      "required": ["lessonGlobalId", "content"]
+    }
+  },
+  "firestore": {
+    "/teachers/{teacherId}": {
+      "schema": "Teacher",
+      "description": "Teacher profiles and access codes"
+    },
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "Student registrations"
+    },
+    "/studentProgress/{studentId}": {
+      "schema": "StudentProgress",
+      "description": "Student lesson completion and progress"
+    },
+    "/lessonContents/{lessonId}": {
+      "schema": "LessonContent",
+      "description": "Customized educational material and corrected texts"
+    },
+    "/content/{document=**}": {
+      "schema": "LessonContent",
+      "description": "General platform content and overrides"
+    }
+  }
+}

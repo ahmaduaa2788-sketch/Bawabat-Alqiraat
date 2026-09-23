@@ -50,7 +50,8 @@ export const qalunCourseMap = [
     shahed: "وَبِخُلْفٍ يَلْهَثْ لِقَالُونَ فَاعْلَمَا",
     lessons: [
       { id: "u4-l1", title: "الإدغام في كلمات مخصوصة", type: "text" },
-      { id: "u4-l2", title: "أحكام النون الساكنة والتنوين", type: "text" }
+      { id: "u4-l2", title: "أحكام النون الساكنة والتنوين", type: "text" },
+      { id: "u4-quiz", title: "اختبار الباب الرابع", type: "quiz" }
     ]
   },
   {
@@ -60,7 +61,8 @@ export const qalunCourseMap = [
     shahed: "وَفِي نَافِعٍ خُلْفٌ ... وَيَاءَاتُ إِضَافَةٍ",
     lessons: [
       { id: "u5-l1", title: "ياءات الإضافة", type: "text" },
-      { id: "u5-l2", title: "الياءات الزوائد", type: "text" }
+      { id: "u5-l2", title: "الياءات الزوائد", type: "text" },
+      { id: "u5-quiz", title: "اختبار الباب الخامس", type: "quiz" }
     ]
   },
   {
@@ -68,7 +70,8 @@ export const qalunCourseMap = [
     title: "المختبر القرآني لقالون",
     description: "تطبيق عملي شامل لأصول قالون.",
     lessons: [
-      { id: "lab-1", title: "المختبر القرآني (تطبيقات)", type: "interactive" }
+      { id: "lab-1", title: "المختبر القرآني (تطبيقات)", type: "interactive" },
+      { id: "final-quiz", title: "الاختبار الشامل", type: "quiz" }
     ]
   }
 ];

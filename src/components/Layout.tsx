@@ -88,20 +88,28 @@ export function Layout() {
             {!role ? (
               <>
                 <Link to="/login" className="text-sm font-bold text-navy-200 hover:text-white transition">تسجيل الدخول</Link>
-                <Link to="/admin" className="text-sm font-bold text-navy-200 hover:text-gold-400 transition hidden sm:block">الإدارة</Link>
+                <Link to="/admin" className="text-sm font-bold text-gold-400 hover:text-gold-300 transition flex items-center gap-1.5 bg-navy-800/80 px-3 py-1.5 rounded-lg border border-gold-500/20">
+                  لوحة الإدارة
+                </Link>
               </>
             ) : (
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gold-400 font-bold flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gold-400 font-bold flex items-center gap-1.5">
                   <User className="w-4 h-4" />
-                  {role === 'admin' ? 'المدير العام' : userData?.name || 'طالب علم'}
+                  {role === 'admin' ? 'المدير العام / الشيخ' : userData?.name || 'طالب علم'}
                 </span>
-                {role === 'admin' && location.pathname !== '/admin' && (
-                  <Link to="/admin" className="text-sm font-bold text-navy-200 hover:text-white transition">لوحة التحكم</Link>
+                {location.pathname !== '/admin' && (
+                  <Link 
+                    to="/admin" 
+                    className="text-xs md:text-sm font-bold bg-navy-800 hover:bg-navy-700 text-gold-400 px-3 py-1.5 rounded-lg border border-gold-500/30 transition flex items-center gap-1.5"
+                    title="لوحة تحكم المشرف وإدارة المادة العلمية"
+                  >
+                    لوحة الإدارة
+                  </Link>
                 )}
                 <button 
                   onClick={handleLogout}
-                  className="text-sm font-bold text-red-400 hover:text-red-300 transition flex items-center gap-1"
+                  className="text-xs md:text-sm font-bold text-red-400 hover:text-red-300 transition flex items-center gap-1 hover:bg-red-500/10 px-2.5 py-1.5 rounded-lg"
                 >
                   <LogOut className="w-4 h-4" />
                   خروج
