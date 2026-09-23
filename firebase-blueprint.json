@@ -48,6 +48,15 @@
         "updatedBy": { "type": "string" }
       },
       "required": ["lessonGlobalId", "content"]
+    },
+    "StudentMistakeRecord": {
+      "title": "StudentMistakeRecord",
+      "description": "Questions answered incorrectly for the review mode",
+      "type": "object",
+      "properties": {
+        "mistakes": { "type": "object" },
+        "updatedAt": { "type": "string" }
+      }
     }
   },
   "firestore": {
@@ -62,6 +71,10 @@
     "/studentProgress/{studentId}": {
       "schema": "StudentProgress",
       "description": "Student lesson completion and progress"
+    },
+    "/studentMistakes/{studentId}": {
+      "schema": "StudentMistakeRecord",
+      "description": "Incorrect questions log for review mode"
     },
     "/lessonContents/{lessonId}": {
       "schema": "LessonContent",

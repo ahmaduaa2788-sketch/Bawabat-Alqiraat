@@ -257,22 +257,39 @@ export function Admin() {
                     <th className="pb-4 font-bold">المعلم</th>
                     <th className="pb-4 font-bold">المسار الحالي</th>
                     <th className="pb-4 font-bold text-center">الدروس المنجزة</th>
+                    <th className="pb-4 font-bold text-center">نسبة الإنجاز</th>
                     <th className="pb-4 font-bold text-center">أيام التفاعل</th>
                     <th className="pb-4 font-bold">الحالة</th>
                     <th className="pb-4 font-bold">الإجراء</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {students.length > 0 ? students.map(student => (
+                  {students.length > 0 ? students.map(student => {
+                    const progress = studentProgressMap[student.id];
+                    const completedCount = progress?.completedLessons?.length || 0;
+                    const percent = progress?.warshProgress ?? progress?.courseProgressPercent ?? (completedCount > 0 ? Math.min(Math.round((completedCount / 31) * 100), 100) : 0);
+
+                    return (
                     <tr key={student.id} className="border-b border-navy-800/50 hover:bg-navy-800/50 transition">
                       <td className="py-4 text-white font-bold">{student.name}</td>
                       <td className="py-4 text-navy-200">{student.teacherName}</td>
                       <td className="py-4 text-gold-400">{student.currentPath}</td>
                       <td className="py-4 text-center font-bold text-navy-200">
-                        {studentProgressMap[student.id]?.completedLessons?.length || 0}
+                        {completedCount}
+                      </td>
+                      <td className="py-4 text-center">
+                        <div className="flex items-center gap-2 justify-center">
+                          <div className="w-16 bg-navy-950 h-2 rounded-full overflow-hidden border border-navy-800">
+                            <div 
+                              className="bg-gold-500 h-full rounded-full transition-all"
+                              style={{ width: `${percent}%` }}
+                            />
+                          </div>
+                          <span className="font-mono text-xs font-bold text-gold-400">{percent}%</span>
+                        </div>
                       </td>
                       <td className="py-4 text-center font-bold text-navy-200">
-                        {studentProgressMap[student.id]?.streakDays || 0}
+                        {progress?.streakDays || 0}
                       </td>
                       <td className="py-4">
                         {student.status === 'نشط' ? (
@@ -291,9 +308,10 @@ export function Admin() {
                         </button>
                       </td>
                     </tr>
-                  )) : (
+                    );
+                  }) : (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center text-navy-400">لا يوجد طلاب مسجلين حتى الآن.</td>
+                      <td colSpan={8} className="py-8 text-center text-navy-400">لا يوجد طلاب مسجلين حتى الآن.</td>
                     </tr>
                   )}
                 </tbody>

@@ -134,19 +134,28 @@ export function CourseView() {
               </div>
 
               <div className={cn(
-                "flex-1 p-6 md:p-8 rounded-2xl shadow-lg border transition-shadow backdrop-blur-sm",
-                unit.lessons.length > 0 
-                  ? "bg-navy-800/80 border-navy-700 hover:border-gold-500/50 hover:shadow-gold-500/5" 
-                  : "bg-navy-950/50 border-dashed border-navy-800 opacity-70"
+                "flex-1 p-6 md:p-8 rounded-2xl shadow-lg border transition-all duration-300 backdrop-blur-sm",
+                isUnitComplete
+                  ? "bg-gradient-to-br from-emerald-950/30 via-navy-800/90 to-navy-900 border-emerald-500/50 shadow-[0_0_25px_rgba(16,185,129,0.1)] hover:border-emerald-400"
+                  : unit.lessons.length > 0 
+                    ? "bg-navy-800/80 border-navy-700 hover:border-gold-500/50 hover:shadow-gold-500/5" 
+                    : "bg-navy-950/50 border-dashed border-navy-800 opacity-70"
               )}>
                 <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-2xl font-bold text-white">{unit.title}</h2>
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-2xl font-bold text-white">{unit.title}</h2>
+                    {isUnitComplete && (
+                      <span className="hidden sm:inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full">
+                        <CheckCircle className="w-3.5 h-3.5" /> تم إنجازه بنجاح
+                      </span>
+                    )}
+                  </div>
                   {unit.lessons.length === 0 && (
                     <span className="bg-navy-900 text-navy-400 border border-navy-800 text-sm px-3 py-1 rounded-full font-medium">قريباً</span>
                   )}
                   {unit.lessons.length > 0 && (
-                    <span className={`text-sm font-bold px-3 py-1 rounded-full border ${isUnitComplete ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-navy-900 text-gold-400 border-gold-500/30'}`}>
-                      {unitCompletedLessons} / {unit.lessons.length}
+                    <span className={`text-sm font-bold px-3 py-1 rounded-full border ${isUnitComplete ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-navy-900 text-gold-400 border-gold-500/30'}`}>
+                      {unitCompletedLessons} / {unit.lessons.length} {isUnitComplete ? '✓' : ''}
                     </span>
                   )}
                 </div>

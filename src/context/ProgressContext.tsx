@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { db } from '../lib/firebase';
-import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { courseMap } from '../data/courseMap';
+import { qalunCourseMap } from '../data/qalunCourseMap';
 
 interface ProgressState {
   activeQari: string | null;
@@ -14,6 +16,20 @@ interface ProgressState {
   lastActiveDate: string | null;
 }
 
+export interface UnitProgressInfo {
+  totalLessons: number;
+  completedCount: number;
+  percent: number;
+  isComplete: boolean;
+}
+
+export interface CourseProgressInfo {
+  totalLessons: number;
+  completedCount: number;
+  percent: number;
+  completedUnits: string[];
+}
+
 interface ProgressContextType extends ProgressState {
   selectQari: (qariId: string) => void;
   selectRawi: (qariId: string, rawiId: string) => void;
@@ -23,6 +39,10 @@ interface ProgressContextType extends ProgressState {
   updateLessonTime: (lessonGlobalId: string, seconds: number) => void;
   updateStreak: () => void;
   resetProgress: () => void;
+  // Progress calculations
+  getCourseProgress: (rawiId?: string) => CourseProgressInfo;
+  getUnitProgress: (rawiId: string, unitId: string) => UnitProgressInfo;
+  isUnitCompleted: (rawiId: string, unitId: string) => boolean;
 }
 
 const defaultState: ProgressState = {
@@ -61,6 +81,53 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     return defaultState;
   });
 
+  // Calculate course progress
+  const getCourseProgress = (rawiId: string = 'warsh'): CourseProgressInfo => {
+    const map = rawiId === 'qalun' ? qalunCourseMap : courseMap;
+    let totalLessons = 0;
+    let completedCount = 0;
+    const completedUnits: string[] = [];
+
+    map.forEach(unit => {
+      const unitLessons = unit.lessons || [];
+      totalLessons += unitLessons.length;
+      
+      const unitCompletedLessons = unitLessons.filter(l => 
+        state.completedLessons.includes(`${rawiId}-${unit.id}-${l.id}`)
+      );
+      
+      completedCount += unitCompletedLessons.length;
+
+      if (unitLessons.length > 0 && unitCompletedLessons.length === unitLessons.length) {
+        completedUnits.push(unit.id);
+      }
+    });
+
+    const percent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+    return { totalLessons, completedCount, percent, completedUnits };
+  };
+
+  const getUnitProgress = (rawiId: string, unitId: string): UnitProgressInfo => {
+    const map = rawiId === 'qalun' ? qalunCourseMap : courseMap;
+    const unit = map.find(u => u.id === unitId);
+    if (!unit) return { totalLessons: 0, completedCount: 0, percent: 0, isComplete: false };
+
+    const unitLessons = unit.lessons || [];
+    const totalLessons = unitLessons.length;
+    const completedCount = unitLessons.filter(l => 
+      state.completedLessons.includes(`${rawiId}-${unit.id}-${l.id}`)
+    ).length;
+
+    const percent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+    const isComplete = totalLessons > 0 && completedCount === totalLessons;
+
+    return { totalLessons, completedCount, percent, isComplete };
+  };
+
+  const isUnitCompleted = (rawiId: string, unitId: string): boolean => {
+    return getUnitProgress(rawiId, unitId).isComplete;
+  };
+
   // Load from Firestore when user logs in
   useEffect(() => {
     setLoadedUserId(null);
@@ -86,7 +153,12 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
           } else {
             // New student: reset to default and initialize in Firestore
             setState(defaultState);
-            await setDoc(docRef, defaultState);
+            await setDoc(docRef, {
+              ...defaultState,
+              courseProgressPercent: 0,
+              completedUnits: [],
+              updatedAt: new Date().toISOString()
+            });
           }
         } catch (error) {
           console.error("Error loading progress:", error);
@@ -96,7 +168,6 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       };
       loadProgress();
     } else if (role === 'admin' || !userData) {
-      // Avoid leaking local progress from other sessions
       const storageKey = `qiraat_progress_${role === 'admin' ? 'admin' : 'guest'}`;
       const saved = localStorage.getItem(storageKey);
       if (saved) {
@@ -119,10 +190,21 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     if (role === 'student' && userData?.id) {
       const saveProgress = async () => {
         try {
+          const warshProgress = getCourseProgress('warsh');
+          const qalunProgress = getCourseProgress('qalun');
+          
           const docRef = doc(db, 'studentProgress', userData.id!);
-          await setDoc(docRef, state, { merge: true });
+          await setDoc(docRef, {
+            ...state,
+            warshProgress: warshProgress.percent,
+            qalunProgress: qalunProgress.percent,
+            completedUnitsWarsh: warshProgress.completedUnits,
+            completedUnitsQalun: qalunProgress.completedUnits,
+            totalCompletedLessonsCount: state.completedLessons.length,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
         } catch (error) {
-          console.error("Error saving progress:", error);
+          console.error("Error saving progress to Firebase:", error);
         }
       };
       saveProgress();
@@ -156,7 +238,6 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
   const completeLesson = (lessonGlobalId: string) => {
     setState(prev => {
-      // Ensure completedLessons array exists for backward compatibility
       const currentLessons = prev.completedLessons || [];
       if (currentLessons.includes(lessonGlobalId)) return prev;
       return {
@@ -176,7 +257,6 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
-
   const updateLessonTime = (lessonGlobalId: string, seconds: number) => {
     setState(prev => ({
       ...prev,
@@ -187,7 +267,6 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
-  
   const updateStreak = () => {
     setState(prev => {
       const today = new Date().toDateString();
@@ -224,7 +303,20 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <ProgressContext.Provider value={{ ...state, selectQari, selectRawi, completeTariq, completeLesson, saveLessonNote, updateLessonTime, updateStreak, resetProgress }}>
+    <ProgressContext.Provider value={{ 
+      ...state, 
+      selectQari, 
+      selectRawi, 
+      completeTariq, 
+      completeLesson, 
+      saveLessonNote, 
+      updateLessonTime, 
+      updateStreak, 
+      resetProgress,
+      getCourseProgress,
+      getUnitProgress,
+      isUnitCompleted
+    }}>
       {children}
     </ProgressContext.Provider>
   );
@@ -237,4 +329,3 @@ export function useProgress() {
   }
   return context;
 }
-

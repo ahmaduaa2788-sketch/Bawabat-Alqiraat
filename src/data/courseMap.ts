@@ -82,7 +82,8 @@ export const courseMap: Unit[] = [
     lessons: [
       { id: "u4-l1", title: "الهمز الساكن المبدل", type: "text" },
       { id: "u4-l2", title: "الهمز المتحرك المبدل", type: "text" },
-      { id: "u4-l3", title: "الكلمات المخصوصة بالهمز المفرد", type: "text" }
+      { id: "u4-l3", title: "الكلمات المخصوصة بالهمز المفرد", type: "text" },
+      { id: "u4-quiz", title: "اختبار باب الهمز المفرد", type: "quiz" }
     ]
   },
   {
@@ -93,7 +94,8 @@ export const courseMap: Unit[] = [
     lessons: [
       { id: "u5-l1", title: "شروط النقل عند ورش", type: "text" },
       { id: "u5-l2", title: "النقل في (أل) التعريف", type: "text" },
-      { id: "u5-l3", title: "كتابيه إني (نقل وسكت)", type: "text" }
+      { id: "u5-l3", title: "كتابيه إني (نقل وسكت)", type: "text" },
+      { id: "u5-quiz", title: "اختبار باب النقل", type: "quiz" }
     ]
   },
   {
@@ -103,7 +105,8 @@ export const courseMap: Unit[] = [
     shahed: "نَعَمْ إِذْ تَمَشَّتْ زَيْنَبٌ صَالَ دَلُّهَا ... سَمِيَّ جَمَالٍ وَاصِلاً مَنْ تَوَصَّلاَ",
     lessons: [
       { id: "u6-l1", title: "إدغام ذال (إذ) ودال (قد)", type: "text" },
-      { id: "u6-l2", title: "تاء التأنيث ولام (هل) و(بل)", type: "text" }
+      { id: "u6-l2", title: "تاء التأنيث ولام (هل) و(بل)", type: "text" },
+      { id: "u6-quiz", title: "اختبار باب الإدغام والإظهار", type: "quiz" }
     ]
   },
   {
@@ -113,7 +116,8 @@ export const courseMap: Unit[] = [
     shahed: "وَكُوفِيُّهُمْ وَالْمَازِنِيُّ وَنَافِعٌ ... عَنُوا بِاتِّبَاعِ الْخَطِّ فِي وَقْفِ الاِبْتِلاَ",
     lessons: [
       { id: "u7-l1", title: "الوقف على هاء التأنيث", type: "text" },
-      { id: "u7-l2", title: "المقطوع والموصول", type: "text" }
+      { id: "u7-l2", title: "المقطوع والموصول", type: "text" },
+      { id: "u7-quiz", title: "اختبار باب الوقف على مرسوم الخط", type: "quiz" }
     ]
   },
   {
@@ -136,7 +140,8 @@ export const courseMap: Unit[] = [
     lessons: [
       { id: "u9-l1", title: "شروط ترقيق الراء", type: "text" },
       { id: "u9-l2", title: "ما يفخم من الراءات استثناءً", type: "text" },
-      { id: "u9-l3", title: "الكلمات التي فيها الوجهان", type: "text" }
+      { id: "u9-l3", title: "الكلمات التي فيها الوجهان", type: "text" },
+      { id: "u9-quiz", title: "اختبار باب الراءات", type: "quiz" }
     ]
   },
   {
@@ -146,7 +151,8 @@ export const courseMap: Unit[] = [
     shahed: "وَغَلَّظَ وَرْشٌ فَتْحَ لاَمٍ لِصَادِهَا ... أَوِ الطَّاءِ أَوْ لِلظَّاءِ قَبْلُ تَنَزَّلاَ",
     lessons: [
       { id: "u10-l1", title: "شروط تغليظ اللام لورش", type: "text" },
-      { id: "u10-l2", title: "اللام التي فيها الوجهان", type: "text" }
+      { id: "u10-l2", title: "اللام التي فيها الوجهان", type: "text" },
+      { id: "u10-quiz", title: "اختبار باب اللامات", type: "quiz" }
     ]
   },
   {
@@ -156,7 +162,8 @@ export const courseMap: Unit[] = [
     shahed: "وَلَمْ يَصِلُوا هَاءَ مُضْمَرٍ قَبْلَ سَاكِنٍ ... وَمَا قَبْلَهُ التَّحْرِيكُ لِلْكُلِّ وُصِّلاَ",
     lessons: [
       { id: "u11-l1", title: "أحوال صلة هاء الكناية", type: "text" },
-      { id: "u11-l2", title: "الاستثناءات والكلمات المخصوصة", type: "text" }
+      { id: "u11-l2", title: "الاستثناءات والكلمات المخصوصة", type: "text" },
+      { id: "u11-quiz", title: "اختبار باب هاء الكناية", type: "quiz" }
     ]
   },
   {
@@ -166,7 +173,8 @@ export const courseMap: Unit[] = [
     shahed: "وَمِنْ قَبْلِ هَمْزِ الْقَطْعِ صِلْهَا لِوَرْشِهِمْ ... وَأَسْكَنَهَا الْبَاقُونَ بَعْدُ لِتَكْمُلاَ",
     lessons: [
       { id: "u12-l1", title: "صلة ميم الجمع عند ورش", type: "text" },
-      { id: "u12-l2", title: "ميم الجمع عند التقاء الساكنين", type: "text" }
+      { id: "u12-l2", title: "ميم الجمع عند التقاء الساكنين", type: "text" },
+      { id: "u12-quiz", title: "اختبار باب ميم الجمع", type: "quiz" }
     ]
   },
   
@@ -175,7 +183,8 @@ export const courseMap: Unit[] = [
     title: "الباب الثالث عشر: الوقف والابتداء",
     description: "معرفة الوقوف ومواضع الابتداء الجائزة والممنوعة.",
     lessons: [
-      { id: "waqf-tool", title: "أداة الوقف والابتداء التفاعلية", type: "interactive" }
+      { id: "waqf-tool", title: "أداة الوقف والابتداء التفاعلية", type: "interactive" },
+      { id: "u13-quiz", title: "اختبار باب الوقف والابتداء", type: "quiz" }
     ]
   },
   {

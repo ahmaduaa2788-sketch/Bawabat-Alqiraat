@@ -21,6 +21,16 @@ import { Unit0Quiz } from '../components/Unit0Quiz';
 import { Unit1Quiz } from '../components/Unit1Quiz';
 import { Unit2Quiz } from '../components/Unit2Quiz';
 import { Unit3Quiz } from '../components/Unit3Quiz';
+import { Unit4Quiz } from '../components/Unit4Quiz';
+import { Unit5Quiz } from '../components/Unit5Quiz';
+import { Unit6Quiz } from '../components/Unit6Quiz';
+import { Unit7Quiz } from '../components/Unit7Quiz';
+import { Unit8Quiz } from '../components/Unit8Quiz';
+import { Unit9Quiz } from '../components/Unit9Quiz';
+import { Unit10Quiz } from '../components/Unit10Quiz';
+import { Unit11Quiz } from '../components/Unit11Quiz';
+import { Unit12Quiz } from '../components/Unit12Quiz';
+import { Unit13Quiz } from '../components/Unit13Quiz';
 import { QalunUnit0Quiz } from '../components/QalunUnit0Quiz';
 import { QalunUnit1Quiz } from '../components/QalunUnit1Quiz';
 import { QalunUnit2Quiz } from '../components/QalunUnit2Quiz';
@@ -28,12 +38,12 @@ import { QalunUnit3Quiz } from '../components/QalunUnit3Quiz';
 import { QalunUnit4Quiz } from '../components/QalunUnit4Quiz';
 import { QalunUnit5Quiz } from '../components/QalunUnit5Quiz';
 import { QalunComprehensiveQuiz } from '../components/QalunComprehensiveQuiz';
-import { Unit8Quiz } from '../components/Unit8Quiz';
 import { QuranicLab } from '../components/QuranicLab';
 import { ComprehensiveQuiz } from '../components/ComprehensiveQuiz';
 import { QuickQuestion } from '../components/QuickQuestion';
 import { CustomLessonRenderer } from '../components/CustomLessonRenderer';
 import { LessonEditorModal } from '../components/LessonEditorModal';
+import { LessonProgressTracker } from '../components/LessonProgressTracker';
 import { 
   ArrowRight, ArrowLeft, CheckCircle, Save, StickyNote, Clock, Lock, 
   Edit3, Shield, Sparkles, Key, CheckCircle2, AlertCircle, X
@@ -252,13 +262,29 @@ export function Lesson() {
       content = unit3Content[lesson.id];
     }
   } else if (unitId === 'unit-4') {
-    content = unit4Content[lesson.id];
+    if (lesson.type === 'quiz') {
+      content = <Unit4Quiz onComplete={handleMarkCompleteAndContinue} />;
+    } else {
+      content = unit4Content[lesson.id];
+    }
   } else if (unitId === 'unit-5') {
-    content = unit5Content[lesson.id];
+    if (lesson.type === 'quiz') {
+      content = <Unit5Quiz onComplete={handleMarkCompleteAndContinue} />;
+    } else {
+      content = unit5Content[lesson.id];
+    }
   } else if (unitId === 'unit-6') {
-    content = unit6Content[lesson.id];
+    if (lesson.type === 'quiz') {
+      content = <Unit6Quiz onComplete={handleMarkCompleteAndContinue} />;
+    } else {
+      content = unit6Content[lesson.id];
+    }
   } else if (unitId === 'unit-7') {
-    content = unit7Content[lesson.id];
+    if (lesson.type === 'quiz') {
+      content = <Unit7Quiz onComplete={handleMarkCompleteAndContinue} />;
+    } else {
+      content = unit7Content[lesson.id];
+    }
   } else if (unitId === 'unit-8') {
     if (lesson.type === 'quiz') {
       content = <Unit8Quiz onComplete={handleMarkCompleteAndContinue} />;
@@ -266,15 +292,35 @@ export function Lesson() {
       content = unit8Content[lesson.id];
     }
   } else if (unitId === 'unit-9') {
-    content = unit9Content[lesson.id];
+    if (lesson.type === 'quiz') {
+      content = <Unit9Quiz onComplete={handleMarkCompleteAndContinue} />;
+    } else {
+      content = unit9Content[lesson.id];
+    }
   } else if (unitId === 'unit-10') {
-    content = unit10Content[lesson.id];
+    if (lesson.type === 'quiz') {
+      content = <Unit10Quiz onComplete={handleMarkCompleteAndContinue} />;
+    } else {
+      content = unit10Content[lesson.id];
+    }
   } else if (unitId === 'unit-11') {
-    content = unit11Content[lesson.id];
+    if (lesson.type === 'quiz') {
+      content = <Unit11Quiz onComplete={handleMarkCompleteAndContinue} />;
+    } else {
+      content = unit11Content[lesson.id];
+    }
   } else if (unitId === 'unit-12') {
-    content = unit12Content[lesson.id];
+    if (lesson.type === 'quiz') {
+      content = <Unit12Quiz onComplete={handleMarkCompleteAndContinue} />;
+    } else {
+      content = unit12Content[lesson.id];
+    }
   } else if (unitId === 'unit-13') {
-    content = unit13Content[lesson.id];
+    if (lesson.type === 'quiz') {
+      content = <Unit13Quiz onComplete={handleMarkCompleteAndContinue} />;
+    } else {
+      content = unit13Content[lesson.id];
+    }
   } else if (unitId === 'unit-14') {
     const displayMap = rawiId === 'qalun' ? qalunCourseMap : courseMap;
     const totalLessons = displayMap.reduce((acc, u) => acc + (u.lessons?.length || 0), 0);
@@ -310,7 +356,7 @@ export function Lesson() {
     <div className="max-w-4xl mx-auto pb-20 animate-in fade-in duration-500">
       
       {/* Top Breadcrumb and Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="text-sm font-bold text-gold-600 mb-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link to={courseBaseUrl} className="hover:underline">المسار</Link>
@@ -368,6 +414,15 @@ export function Lesson() {
           </div>
         </div>
       </div>
+
+      {/* Embedded Progress Tracking Widget for the Lesson & Unit */}
+      <LessonProgressTracker
+        qariId={qariId || 'nafi'}
+        rawiId={rawiId || 'warsh'}
+        tariqId={tariqId || 'shatibiyyah'}
+        unitId={unitId || 'unit-0'}
+        currentLessonId={lessonId || ''}
+      />
 
       {/* Admin Broadcast Note if exists */}
       {adminNote && (
