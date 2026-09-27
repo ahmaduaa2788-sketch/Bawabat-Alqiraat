@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { qiraatTree } from '../data/qiraatTree';
 import { useProgress } from '../context/ProgressContext';
 import { useAuth } from '../context/AuthContext';
-import { Lock, BookOpen, ChevronLeft, RefreshCcw, Search } from 'lucide-react';
+import { Lock, BookOpen, ChevronLeft, RefreshCcw, Search, Award } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { StudentDashboard } from '../components/StudentDashboard';
 import { courseMap } from '../data/courseMap';
@@ -24,7 +24,7 @@ export function Portal() {
   }).slice(0, 5);
 
   const { activeQari, selectQari, resetProgress, completedTuruq } = useProgress();
-  const { role } = useAuth();
+  const { role, userData } = useAuth();
   const navigate = useNavigate();
 
   const handleSelectQari = (qariId: string, isLocked: boolean) => {
@@ -36,6 +36,31 @@ export function Portal() {
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       {role === 'student' && <StudentDashboard />}
+
+      {role === 'teacher' && (
+        <div className="bg-gradient-to-r from-emerald-950/60 via-navy-900 to-navy-950 border border-emerald-500/30 rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in duration-300">
+          <div className="flex items-center gap-4 text-right">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+              <Award className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">معلّم الحلقة</span>
+                <span className="font-mono text-xs text-navy-400">الكود: {userData?.teacherCode}</span>
+              </div>
+              <h2 className="text-lg md:text-xl font-bold text-white mt-1">حياكم الله فضيلة الشيخ / {userData?.name}</h2>
+              <p className="text-xs text-navy-300">يمكنكم متابعة أداء طلابكم ونسب إنجازهم عبر لوحة الحلقة المخصصة.</p>
+            </div>
+          </div>
+          <Link 
+            to="/teacher" 
+            className="text-xs md:text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-navy-950 px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-emerald-500/20 whitespace-nowrap shrink-0"
+          >
+            الانتقال للوحة الشيخ
+            <ChevronLeft className="w-4 h-4" />
+          </Link>
+        </div>
+      )}
 
       <div className="text-center space-y-6 py-12">
 

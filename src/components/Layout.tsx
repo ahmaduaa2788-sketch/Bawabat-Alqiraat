@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useParams, useNavigate } from 'react-router-dom';
-import { BookOpen, Menu, X, CheckCircle2, LogOut, User, Sun, Moon, Target, Sparkles, Trophy } from 'lucide-react';
+import { BookOpen, Menu, X, CheckCircle2, LogOut, User, Sun, Moon, Target, Sparkles, Trophy, Award, Shield, LogIn } from 'lucide-react';
 import { courseMap } from '../data/courseMap';
 import { qalunCourseMap } from '../data/qalunCourseMap';
 import { cn } from '../lib/utils';
@@ -119,28 +119,72 @@ export function Layout() {
               </Link>
             )}
 
-            {/* User Profile / Status / Admin Link */}
-            {role && (
+            {/* User Profile / Status / Admin & Sheikh Links */}
+            {role ? (
               <div className="flex items-center gap-2 border-r border-navy-800 pr-3">
-                <span className="hidden md:inline text-xs text-navy-300 font-medium">
-                  {userData?.name || (role === 'admin' ? 'المشرف العام' : 'طالب علم')}
-                </span>
-                {location.pathname !== '/admin' && (
+                <div className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-navy-800/80 border border-navy-700/60 text-xs">
+                  {role === 'admin' && (
+                    <>
+                      <Shield className="w-3.5 h-3.5 text-red-400" />
+                      <span className="text-red-300 font-bold">المشرف العام</span>
+                    </>
+                  )}
+                  {role === 'teacher' && (
+                    <>
+                      <Award className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-300 font-bold">فضيلة الشيخ: {userData?.name}</span>
+                    </>
+                  )}
+                  {role === 'student' && (
+                    <>
+                      <User className="w-3.5 h-3.5 text-gold-400" />
+                      <span className="text-navy-200 font-medium">{userData?.name || 'طالب علم'}</span>
+                    </>
+                  )}
+                </div>
+
+                {/* Teacher Dashboard Link */}
+                {role === 'teacher' && location.pathname !== '/teacher' && (
+                  <Link 
+                    to="/teacher" 
+                    className="text-xs md:text-sm font-bold bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-400 px-3 py-1.5 rounded-lg border border-emerald-500/40 transition flex items-center gap-1.5"
+                    title="لوحة الشيخ لإدارة الحلقة ومتابعة الطلاب"
+                  >
+                    <Award className="w-4 h-4" />
+                    <span className="hidden sm:inline">لوحة الشيخ</span>
+                  </Link>
+                )}
+
+                {/* Admin Dashboard Link */}
+                {role === 'admin' && location.pathname !== '/admin' && (
                   <Link 
                     to="/admin" 
                     className="text-xs md:text-sm font-bold bg-navy-800 hover:bg-navy-700 text-gold-400 px-3 py-1.5 rounded-lg border border-gold-500/30 transition flex items-center gap-1.5"
                     title="لوحة تحكم المشرف وإدارة المادة العلمية"
                   >
-                    لوحة الإدارة
+                    <Shield className="w-4 h-4" />
+                    <span className="hidden sm:inline">لوحة الإدارة</span>
                   </Link>
                 )}
+
                 <button 
                   onClick={handleLogout}
                   className="text-xs md:text-sm font-bold text-red-400 hover:text-red-300 transition flex items-center gap-1 hover:bg-red-500/10 px-2.5 py-1.5 rounded-lg"
+                  title="تسجيل الخروج"
                 >
                   <LogOut className="w-4 h-4" />
-                  خروج
+                  <span className="hidden sm:inline">خروج</span>
                 </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 border-r border-navy-800 pr-3">
+                <Link
+                  to="/login"
+                  className="text-xs md:text-sm font-bold bg-gold-500 hover:bg-gold-400 text-navy-950 px-3.5 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-gold-500/10"
+                >
+                  <LogIn className="w-4 h-4" />
+                  تسجيل الدخول
+                </Link>
               </div>
             )}
             

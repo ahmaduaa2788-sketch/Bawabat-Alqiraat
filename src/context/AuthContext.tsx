@@ -2,12 +2,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
-type UserRole = 'student' | 'admin' | null;
+export type UserRole = 'student' | 'admin' | 'teacher' | null;
 
-interface UserData {
+export interface UserData {
   id?: string;
   name?: string;
   teacherCode?: string;
+  role?: UserRole;
 }
 
 interface AuthContextType {

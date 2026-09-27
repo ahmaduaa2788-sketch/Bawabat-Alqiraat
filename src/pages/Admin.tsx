@@ -155,6 +155,13 @@ export function Admin() {
           <h1 className="text-3xl font-bold text-white">لوحة الإدارة</h1>
           <p className="text-navy-300 text-sm">هذه المنطقة مخصصة للمدير العام فقط.</p>
           
+          {role === 'teacher' && (
+            <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl text-xs text-emerald-300 flex items-center justify-between">
+              <span>أنت مسجل حالياً كشيخ حلقة.</span>
+              <a href="/teacher" className="font-bold underline hover:text-white">الانتقال للوحة الشيخ</a>
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="password"

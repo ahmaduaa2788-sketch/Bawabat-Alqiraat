@@ -9,6 +9,7 @@ import { ExamView } from './pages/ExamView';
 import { ReviewView } from './pages/ReviewView';
 import { Login } from './pages/Login';
 import { Admin } from './pages/Admin';
+import { TeacherView } from './pages/TeacherView';
 import { ProgressProvider } from './context/ProgressContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
@@ -36,6 +37,7 @@ export default function App() {
                   <Route index element={<Portal />} />
                   <Route path="login" element={<Login />} />
                   <Route path="admin" element={<Admin />} />
+                  <Route path="teacher" element={<ProtectedRoute><TeacherView /></ProtectedRoute>} />
                   <Route path="review" element={<ProtectedRoute><ReviewView /></ProtectedRoute>} />
                   
                   {/* Protected Routes */}
