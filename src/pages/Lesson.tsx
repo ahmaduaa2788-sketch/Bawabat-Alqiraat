@@ -176,13 +176,12 @@ export function Lesson() {
     );
   }
 
-  const isLessonComplete = completedLessons.includes(lessonGlobalId);
+  const isLessonComplete = completedLessons.includes(lessonGlobalId) ||
+    completedLessons.some(cl => cl.endsWith(`${unitId}-${lessonId}`) || cl === lessonId);
 
   const handleMarkCompleteAndContinue = () => {
-    if (!isLessonComplete) {
-      completeLesson(lessonGlobalId);
-      showToast('🎉 أحسنت! تم إنجاز الدرس بنجاح. استمر في تقدمك!', 'success');
-    }
+    completeLesson(lessonGlobalId);
+    showToast('🎉 أحسنت! تم إنجاز وتوثيق الدرس بنجاح. استمر في تقدمك!', 'success');
     
     if (nextLesson) {
       navigate(`/lesson/${qariId}/${rawiId}/${tariqId}/${unit.id}/${nextLesson.id}`);

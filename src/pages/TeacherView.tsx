@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { StudentRecord } from './Login';
+import { courseMap } from '../data/courseMap';
 import { 
   Users, 
   Award, 
@@ -15,7 +16,11 @@ import {
   Flame,
   Clock,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Eye,
+  X,
+  Trophy,
+  CheckCircle
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -27,9 +32,11 @@ export function TeacherView() {
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [activeTab, setActiveTab] = useState<'students' | 'overview'>('students');
+  const [selectedStudentForDetails, setSelectedStudentForDetails] = useState<StudentRecord | null>(null);
 
   const teacherCode = userData?.teacherCode || '';
   const teacherName = userData?.name || 'فضيلة الشيخ';
+  const warshTotalLessons = courseMap.reduce((acc, u) => acc + (u.lessons?.length || 0), 0);
 
   useEffect(() => {
     if (!teacherCode) return;
@@ -82,10 +89,29 @@ export function TeacherView() {
   const totalPercent = students.reduce((acc, s) => {
     const p = studentProgressMap[s.id];
     const completedLessons = p?.completedLessons?.length || 0;
-    const percent = p?.warshProgress ?? p?.courseProgressPercent ?? (completedLessons > 0 ? Math.min(Math.round((completedLessons / 31) * 100), 100) : 0);
+    const percent = p?.warshProgress ?? (completedLessons > 0 ? Math.min(Math.round((completedLessons / warshTotalLessons) * 100), 100) : 0);
     return acc + percent;
   }, 0);
   const avgProgress = students.length > 0 ? Math.round(totalPercent / students.length) : 0;
+
+  const getStudentUnitProgress = (progress: any) => {
+    const completedList: string[] = progress?.completedLessons || [];
+    return courseMap.map(unit => {
+      const unitLessons = unit.lessons || [];
+      const completedInUnit = unitLessons.filter(l => 
+        completedList.includes(`warsh-${unit.id}-${l.id}`) ||
+        completedList.includes(`${unit.id}-${l.id}`) ||
+        completedList.some(cl => cl.endsWith(`${unit.id}-${l.id}`) || cl === l.id)
+      ).length;
+      const isComplete = unitLessons.length > 0 && completedInUnit === unitLessons.length;
+      return {
+        unit,
+        completedInUnit,
+        totalInUnit: unitLessons.length,
+        isComplete
+      };
+    });
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 py-6" dir="rtl">
@@ -219,16 +245,20 @@ export function TeacherView() {
                   <th className="pb-4">اسم الطالب</th>
                   <th className="pb-4">المسار القرآني</th>
                   <th className="pb-4 text-center">الدروس المنجزة</th>
+                  <th className="pb-4 text-center">الأبواب المكتملة</th>
                   <th className="pb-4 text-center">نسبة الإنجاز</th>
                   <th className="pb-4 text-center">أيام التفاعل</th>
                   <th className="pb-4 text-center">الحالة</th>
+                  <th className="pb-4 text-center">تفاصيل الأبواب</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-navy-800/40 text-sm">
                 {students.map((student) => {
                   const progress = studentProgressMap[student.id];
                   const completedLessonsCount = progress?.completedLessons?.length || 0;
-                  const percent = progress?.warshProgress ?? progress?.courseProgressPercent ?? (completedLessonsCount > 0 ? Math.min(Math.round((completedLessonsCount / 31) * 100), 100) : 0);
+                  const percent = progress?.warshProgress ?? (completedLessonsCount > 0 ? Math.min(Math.round((completedLessonsCount / warshTotalLessons) * 100), 100) : 0);
+                  const unitProgressList = getStudentUnitProgress(progress);
+                  const completedUnitsCount = unitProgressList.filter(u => u.isComplete).length;
                   
                   return (
                     <tr key={student.id} className="hover:bg-navy-800/40 transition">
@@ -240,7 +270,17 @@ export function TeacherView() {
                         {student.currentPath || 'رواية ورش عن نافع'}
                       </td>
                       <td className="py-4 text-center font-bold text-navy-200">
-                        {completedLessonsCount} / 31
+                        {completedLessonsCount} / {warshTotalLessons}
+                      </td>
+                      <td className="py-4 text-center">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
+                          completedUnitsCount > 0 
+                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' 
+                            : 'bg-navy-950 text-navy-400 border border-navy-800'
+                        }`}>
+                          <Award className="w-3.5 h-3.5" />
+                          <span>{completedUnitsCount} من {courseMap.length} باب</span>
+                        </span>
                       </td>
                       <td className="py-4 text-center">
                         <div className="flex items-center gap-2 justify-center max-w-[140px] mx-auto">
@@ -271,6 +311,16 @@ export function TeacherView() {
                           </span>
                         )}
                       </td>
+                      <td className="py-4 text-center">
+                        <button
+                          onClick={() => setSelectedStudentForDetails(student)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gold-500/10 hover:bg-gold-500 hover:text-navy-950 text-gold-400 rounded-xl text-xs font-bold transition border border-gold-500/20"
+                          title="عرض إنجاز الأبواب والاختبارات"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>عرض الأبواب</span>
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -299,6 +349,80 @@ export function TeacherView() {
         )}
       </div>
 
+      {/* Student Completed Chapters Breakdown Modal */}
+      {selectedStudentForDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm animate-in fade-in" dir="rtl">
+          <div className="bg-navy-900 border border-navy-700 rounded-3xl p-6 md:p-8 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl relative">
+            <button
+              onClick={() => setSelectedStudentForDetails(null)}
+              className="absolute top-5 left-5 text-navy-400 hover:text-white p-1 rounded-xl hover:bg-navy-800 transition"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-navy-800">
+              <div className="p-3 bg-gold-500/15 text-gold-400 rounded-2xl border border-gold-500/30">
+                <Trophy className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">
+                  سجل إنجاز الأبواب: {selectedStudentForDetails.name}
+                </h3>
+                <p className="text-xs text-navy-300">
+                  تفصيل إتمام أبواب المنهج والاختبارات المعتمدة لورش عن نافع
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {getStudentUnitProgress(studentProgressMap[selectedStudentForDetails.id]).map(({ unit, completedInUnit, totalInUnit, isComplete }) => (
+                <div
+                  key={unit.id}
+                  className={`p-4 rounded-2xl border flex items-center justify-between gap-3 transition ${
+                    isComplete 
+                      ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-100' 
+                      : completedInUnit > 0 
+                        ? 'bg-navy-950/80 border-gold-500/30 text-navy-200' 
+                        : 'bg-navy-950/40 border-navy-800 text-navy-400 opacity-60'
+                  }`}
+                >
+                  <div className="space-y-1">
+                    <div className="font-bold text-sm text-white flex items-center gap-2">
+                      {isComplete && <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />}
+                      <span>{unit.title}</span>
+                    </div>
+                    <div className="text-xs text-navy-300">
+                      أنجز {completedInUnit} من {totalInUnit} درس واختبار
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 text-left">
+                    {isComplete ? (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-bold">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        تم إتمام الباب ✓
+                      </span>
+                    ) : (
+                      <span className="text-xs font-mono text-gold-400 bg-navy-900 px-2.5 py-1 rounded-lg border border-navy-800">
+                        {Math.round((completedInUnit / totalInUnit) * 100)}%
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-navy-800 flex justify-end">
+              <button
+                onClick={() => setSelectedStudentForDetails(null)}
+                className="bg-navy-800 hover:bg-navy-700 text-white px-6 py-2 rounded-xl text-sm font-bold transition border border-navy-700"
+              >
+                إغلاق
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

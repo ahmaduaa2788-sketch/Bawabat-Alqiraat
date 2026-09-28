@@ -43,11 +43,21 @@ export function CourseView() {
     navigate(`/qari/${qariId}`);
   };
 
+  const isLessonDone = (unitId: string, lessonId: string) => {
+    const fullId = `${rawiId}-${unitId}-${lessonId}`;
+    const shortId = `${unitId}-${lessonId}`;
+    return (
+      completedLessons.includes(fullId) ||
+      completedLessons.includes(shortId) ||
+      completedLessons.some(cl => cl.endsWith(fullId) || cl.endsWith(shortId) || cl === lessonId)
+    );
+  };
+
   const totalLessons = displayMap.reduce((acc, unit) => acc + (unit.lessons?.length || 0), 0);
   const completedCount = displayMap.reduce((acc, unit) => {
-    return acc + (unit.lessons?.filter(l => completedLessons.includes(`${rawiId}-${unit.id}-${l.id}`)).length || 0);
+    return acc + (unit.lessons?.filter(l => isLessonDone(unit.id, l.id)).length || 0);
   }, 0);
-    const isAllLessonsCompleted = totalLessons > 0 && completedCount === totalLessons;
+  const isAllLessonsCompleted = totalLessons > 0 && completedCount === totalLessons;
   const canTakeExam = isAllLessonsCompleted || role === 'admin';
   const progressPercentage = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
@@ -113,9 +123,9 @@ export function CourseView() {
       ) : (
         <div className="space-y-8 relative before:absolute before:inset-0 before:ml-auto before:mr-auto before:-translate-x-1/2 before:w-1 before:bg-navy-800 before:z-0 md:before:mr-[40px] md:before:-translate-x-0">
           {displayMap.map((unit, index) => {
-            const unitCompletedLessons = unit.lessons.filter(l => completedLessons.includes(`${rawiId}-${unit.id}-${l.id}`)).length;
-            const progressPercentage = unit.lessons.length > 0 ? (unitCompletedLessons / unit.lessons.length) * 100 : 0;
-            const isUnitComplete = progressPercentage === 100;
+            const unitCompletedLessons = unit.lessons.filter(l => isLessonDone(unit.id, l.id)).length;
+            const progressPercentage = unit.lessons.length > 0 ? Math.round((unitCompletedLessons / unit.lessons.length) * 100) : 0;
+            const isUnitComplete = unit.lessons.length > 0 && unitCompletedLessons === unit.lessons.length;
             
             return (
             <div key={unit.id} className="relative z-10 flex flex-col md:flex-row gap-6 md:gap-12 items-start group">
@@ -184,7 +194,7 @@ export function CourseView() {
                   <div className="space-y-3 bg-navy-900/50 p-4 rounded-xl border border-navy-800/50 shadow-inner">
                     <h3 className="font-semibold text-navy-200 mb-3 text-sm uppercase tracking-wide">الدروس المتاحة:</h3>
                     {unit.lessons.map((lesson, i) => {
-                      const isLessonCompleted = completedLessons.includes(`${rawiId}-${unit.id}-${lesson.id}`);
+                      const isLessonCompleted = isLessonDone(unit.id, lesson.id);
                       const isFinalSection = unit.id === 'unit-14' || unit.id === 'final';
                       
                       // Check if all OTHER lessons are complete

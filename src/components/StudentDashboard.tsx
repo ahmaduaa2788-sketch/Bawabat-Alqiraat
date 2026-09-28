@@ -36,8 +36,12 @@ export function StudentDashboard() {
   
   // Calculate mastered units (Badges)
   const masteredUnits = courseMap.filter(unit => {
-    if (unit.lessons.length === 0) return false;
-    const completedInUnit = unit.lessons.filter(l => completedLessons.some(cl => cl.endsWith(`${unit.id}-${l.id}`))).length;
+    if (!unit.lessons || unit.lessons.length === 0) return false;
+    const completedInUnit = unit.lessons.filter(l => 
+      completedLessons.includes(`warsh-${unit.id}-${l.id}`) ||
+      completedLessons.includes(`${unit.id}-${l.id}`) ||
+      completedLessons.some(cl => cl.endsWith(`${unit.id}-${l.id}`) || cl === l.id)
+    ).length;
     return completedInUnit === unit.lessons.length;
   });
 

@@ -7,6 +7,7 @@ import { collection, query, getDocs, addDoc, updateDoc, doc, onSnapshot, deleteD
 import { CertificateBuilder } from '../components/CertificateBuilder';
 import { AdminQuestionsManager } from '../components/AdminQuestionsManager';
 import { AdminLessonsManager } from '../components/AdminLessonsManager';
+import { courseMap } from '../data/courseMap';
 
 export function Admin() {
   const [password, setPassword] = useState('');
@@ -274,7 +275,8 @@ export function Admin() {
                   {students.length > 0 ? students.map(student => {
                     const progress = studentProgressMap[student.id];
                     const completedCount = progress?.completedLessons?.length || 0;
-                    const percent = progress?.warshProgress ?? progress?.courseProgressPercent ?? (completedCount > 0 ? Math.min(Math.round((completedCount / 31) * 100), 100) : 0);
+                    const warshTotalLessons = courseMap.reduce((acc, u) => acc + (u.lessons?.length || 0), 0);
+                    const percent = progress?.warshProgress ?? progress?.courseProgressPercent ?? (completedCount > 0 ? Math.min(Math.round((completedCount / warshTotalLessons) * 100), 100) : 0);
 
                     return (
                     <tr key={student.id} className="border-b border-navy-800/50 hover:bg-navy-800/50 transition">
@@ -282,7 +284,7 @@ export function Admin() {
                       <td className="py-4 text-navy-200">{student.teacherName}</td>
                       <td className="py-4 text-gold-400">{student.currentPath}</td>
                       <td className="py-4 text-center font-bold text-navy-200">
-                        {completedCount}
+                        {completedCount} / {warshTotalLessons}
                       </td>
                       <td className="py-4 text-center">
                         <div className="flex items-center gap-2 justify-center">

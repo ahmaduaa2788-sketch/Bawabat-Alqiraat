@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { CheckCircle2, XCircle, ArrowLeft, RefreshCw, Trophy, Sparkles, BookOpen, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CheckCircle2, XCircle, ArrowLeft, RefreshCw, Trophy, Sparkles, BookOpen, AlertCircle, Award } from 'lucide-react';
 import { useReview } from '../context/ReviewContext';
+import { useProgress } from '../context/ProgressContext';
 import { Link } from 'react-router-dom';
 
 export interface QuizQuestion {
@@ -28,12 +29,23 @@ export function QuizEngine({
   onComplete
 }: QuizEngineProps) {
   const { recordMistake } = useReview();
+  const { completeLesson, updateStreak, getUnitProgress } = useProgress();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
   const [wrongQuestionsCount, setWrongQuestionsCount] = useState(0);
+
+  const lessonGlobalId = unitId ? `${rawiId}-${unitId}-${quizId}` : `${rawiId}-${quizId}`;
+
+  // Automatically mark lesson completed as soon as quizFinished is set to true
+  useEffect(() => {
+    if (quizFinished) {
+      completeLesson(lessonGlobalId);
+      updateStreak();
+    }
+  }, [quizFinished, lessonGlobalId, completeLesson, updateStreak]);
 
   const q = questions[currentQuestion];
 
@@ -73,6 +85,8 @@ export function QuizEngine({
       setIsSubmitted(false);
     } else {
       setQuizFinished(true);
+      completeLesson(lessonGlobalId);
+      updateStreak();
     }
   };
 
@@ -88,6 +102,8 @@ export function QuizEngine({
   if (quizFinished) {
     const percentage = Math.round((score / questions.length) * 100);
     const passed = percentage >= 70;
+    const unitProgress = unitId ? getUnitProgress(rawiId, unitId) : null;
+    const isUnitFullyCompleted = unitProgress?.isComplete || (unitProgress && unitProgress.completedCount >= unitProgress.totalLessons - 1);
 
     return (
       <div className="bg-navy-900 border border-navy-800 rounded-3xl p-8 md:p-12 text-center max-w-2xl mx-auto shadow-2xl animate-in zoom-in-95" dir="rtl">
@@ -100,13 +116,37 @@ export function QuizEngine({
         </div>
 
         <h2 className="text-3xl font-black text-white mb-2">
-          {passed ? 'هنيئاً لك! اجتزت الاختبار بنجاح' : 'تحتاج لمراجعة بعض المسائل'}
+          {passed ? 'هنيئاً لك! اجتزت الاختبار بنجاح' : 'أحسنت! تم إتمام الاختبار'}
         </h2>
         
-        <p className="text-navy-300 mb-6 text-base">
+        <p className="text-navy-300 mb-4 text-base">
           حصلت على <strong className="text-gold-400 text-xl font-mono">{score}</strong> من أصل{' '}
           <strong className="text-white text-xl font-mono">{questions.length}</strong> ({percentage}%)
         </p>
+
+        {/* Real-time Confirmation Badge */}
+        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 my-4 text-center space-y-1">
+          <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold text-sm">
+            <CheckCircle2 className="w-5 h-5 shrink-0" />
+            <span>تم اعتماد واجتياز الاختبار وتوثيقه في سجلك الأكاديمي!</span>
+          </div>
+          <p className="text-xs text-navy-300">
+            تم حفظ تقدمك بنجاح في ملفك التعليمي لدى الشيخ والمشرف.
+          </p>
+        </div>
+
+        {/* Chapter Mastered Badge if Unit is Complete */}
+        {isUnitFullyCompleted && (
+          <div className="bg-gradient-to-r from-emerald-950/80 via-navy-900 to-emerald-950/80 border-2 border-gold-500/40 rounded-2xl p-5 my-5 text-center shadow-xl animate-in zoom-in-95">
+            <div className="w-12 h-12 bg-gradient-to-br from-gold-400 to-gold-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-lg shadow-gold-500/30">
+              <Award className="w-7 h-7 text-navy-950" />
+            </div>
+            <h3 className="text-lg font-black text-gold-400">مبارك! لقد أتممت هذا الباب بالكامل</h3>
+            <p className="text-xs text-navy-200 mt-1">
+              تم توثيق إنجاز جميع دروس واختبارات هذا الباب وحصلت على وسام الإتقان!
+            </p>
+          </div>
+        )}
 
         {wrongQuestionsCount > 0 && (
           <div className="bg-navy-950/80 border border-gold-500/30 rounded-2xl p-5 mb-8 text-right space-y-3">
@@ -133,14 +173,14 @@ export function QuizEngine({
             className="flex items-center gap-2 bg-navy-800 hover:bg-navy-700 text-white px-6 py-3.5 rounded-xl transition border border-navy-700 font-bold text-sm"
           >
             <RefreshCw className="w-4 h-4" />
-            إعادة الاختبار
+            إعادة الاختبار للتدريب
           </button>
 
           <button
             onClick={onComplete}
-            className="flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-navy-950 px-8 py-3.5 rounded-xl transition font-bold shadow-lg text-sm shadow-gold-500/10"
+            className="flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-navy-950 px-8 py-3.5 rounded-xl transition font-bold shadow-lg text-sm shadow-gold-500/20"
           >
-            {passed ? 'إتمام ومتابعة المسار' : 'متابعة الدرس'}
+            <span>العودة لخريطة المسار</span>
             <ArrowLeft className="w-4 h-4" />
           </button>
         </div>

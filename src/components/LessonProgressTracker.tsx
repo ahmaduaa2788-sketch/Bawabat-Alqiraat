@@ -95,7 +95,9 @@ export function LessonProgressTracker({
           <div className="flex flex-wrap gap-2">
             {currentUnit.lessons.map((lesson, idx) => {
               const lessonGlobalId = `${rawiId}-${unitId}-${lesson.id}`;
-              const isCompleted = completedLessons.includes(lessonGlobalId);
+              const isCompleted = completedLessons.includes(lessonGlobalId) ||
+                completedLessons.includes(`${unitId}-${lesson.id}`) ||
+                completedLessons.some(cl => cl.endsWith(`${unitId}-${lesson.id}`) || cl === lesson.id);
               const isActive = lesson.id === currentLessonId;
               const isQuiz = lesson.type === 'quiz';
 

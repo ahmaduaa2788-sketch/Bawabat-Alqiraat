@@ -3,6 +3,7 @@ import { CheckCircle2, XCircle, ArrowLeft, RefreshCw, Trophy } from 'lucide-reac
 import { questionBank as defaultQuestionBank, Question } from '../data/questionsBank';
 import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { useProgress } from '../context/ProgressContext';
 
 // Fisher-Yates shuffle
 function shuffleArray<T>(array: T[]): T[] {
@@ -15,12 +16,20 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 export function ComprehensiveQuiz({ onComplete }: { onComplete: () => void }) {
+  const { completeLesson, updateStreak } = useProgress();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
+
+  useEffect(() => {
+    if (quizFinished && score >= 35) {
+      completeLesson('warsh-unit-14-final-quiz');
+      updateStreak();
+    }
+  }, [quizFinished, score, completeLesson, updateStreak]);
 
   const [allQuestions, setAllQuestions] = useState<Question[]>(defaultQuestionBank);
   const QUESTION_COUNT = 40;

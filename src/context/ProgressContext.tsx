@@ -81,6 +81,17 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     return defaultState;
   });
 
+  // Resilient checker for lesson completion across rawi-unit-lesson or unit-lesson formats
+  const isLessonCompletedInList = (rawiId: string, unitId: string, lessonId: string, completedList: string[]) => {
+    const fullId = `${rawiId}-${unitId}-${lessonId}`;
+    const shortId = `${unitId}-${lessonId}`;
+    return (
+      completedList.includes(fullId) ||
+      completedList.includes(shortId) ||
+      completedList.some(id => id.endsWith(`-${unitId}-${lessonId}`) || id.endsWith(`${unitId}-${lessonId}`) || id === lessonId)
+    );
+  };
+
   // Calculate course progress
   const getCourseProgress = (rawiId: string = 'warsh'): CourseProgressInfo => {
     const map = rawiId === 'qalun' ? qalunCourseMap : courseMap;
@@ -93,7 +104,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       totalLessons += unitLessons.length;
       
       const unitCompletedLessons = unitLessons.filter(l => 
-        state.completedLessons.includes(`${rawiId}-${unit.id}-${l.id}`)
+        isLessonCompletedInList(rawiId, unit.id, l.id, state.completedLessons)
       );
       
       completedCount += unitCompletedLessons.length;
@@ -115,7 +126,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     const unitLessons = unit.lessons || [];
     const totalLessons = unitLessons.length;
     const completedCount = unitLessons.filter(l => 
-      state.completedLessons.includes(`${rawiId}-${unit.id}-${l.id}`)
+      isLessonCompletedInList(rawiId, unit.id, l.id, state.completedLessons)
     ).length;
 
     const percent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
@@ -240,9 +251,19 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     setState(prev => {
       const currentLessons = prev.completedLessons || [];
       if (currentLessons.includes(lessonGlobalId)) return prev;
+
+      const newLessons = [...currentLessons, lessonGlobalId];
+      // If it starts with rawi- (e.g. warsh-unit-6-u6-quiz), also include unit-6-u6-quiz
+      const parts = lessonGlobalId.split('-');
+      if (parts.length >= 3) {
+        const withoutRawi = parts.slice(1).join('-');
+        if (!newLessons.includes(withoutRawi)) {
+          newLessons.push(withoutRawi);
+        }
+      }
       return {
         ...prev,
-        completedLessons: [...currentLessons, lessonGlobalId]
+        completedLessons: newLessons
       };
     });
   };
