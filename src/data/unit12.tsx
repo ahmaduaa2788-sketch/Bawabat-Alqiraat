@@ -37,8 +37,12 @@ export const unit12Content: Record<string, React.ReactNode> = {
             </div>
             
             <p className="text-navy-200 mt-4 text-sm">
-              أما إذا جاء بعد ميم الجمع أي حرف آخر غير همزة القطع (مثل: عليهم غير)، فإن ورشاً يسكن الميم كحفص والجمهور.
+              أما إذا جاء بعد ميم الجمع أي حرف آخر غير همزة القطع (مثل: عليهم غير، عليهم ولا الضالين)، فإن ورشاً يسكن الميم كحفص والجمهور.
             </p>
+            <div className="mt-4 p-3 bg-navy-900/60 rounded-lg text-xs text-navy-200 border border-navy-800">
+              <strong className="text-gold-400 block mb-1">حكم الهاء قبل ميم الجمع لورش:</strong>
+              يقرأ ورش بكسر الهاء الواقعة بعد ياء ساكنة قبل ميم الجمع في نحو <span className="text-gold-300 font-serif text-sm">﴿عَلَيْهِمْ﴾</span> و <span className="text-gold-300 font-serif text-sm">﴿إِلَيْهِمْ﴾</span> و <span className="text-gold-300 font-serif text-sm">﴿فِيهِمْ﴾</span> موافقاً لحفص وعامة القراء، خلافاً لمن يضمها كحمزة.
+            </div>
           </div>
         </div>
       </div>

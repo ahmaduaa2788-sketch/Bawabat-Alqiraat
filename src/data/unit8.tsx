@@ -131,6 +131,24 @@ export const unit8Content: Record<string, React.ReactNode> = {
               <br/>
               <strong>استثناء:</strong> إذا اتصلت بها (ها) التأنيث مثل <span className="font-serif">﴿ وَالشَّمْسِ وَضُحَاهَا ﴾</span> فتعود للقاعدة الأصلية (ذوات الياء) وفيها الوجهان (الفتح والتقليل).
             </div>
+
+            <div className="mt-6 pt-4 border-t border-navy-800 space-y-4">
+              <h4 className="text-gold-400 font-bold text-base">مستثنيات أخرى يقللها ورش قولاً واحداً:</h4>
+              <div className="grid sm:grid-cols-2 gap-4 text-sm text-navy-200">
+                <div className="bg-navy-900/60 p-4 rounded-lg">
+                  <strong className="text-white block mb-1">1. الألف الواقعة قبل راء متطرفة مكسورة:</strong>
+                  <p>كل ألف وقعت قبل راء متطرفة مكسورة كسر إعراب، يقللها ورش قولاً واحداً نحو: <span className="font-serif text-gold-300">﴿النَّارِ﴾</span>، <span className="font-serif text-gold-300">﴿الأَبْرَارِ﴾</span>، <span className="font-serif text-gold-300">﴿الْفُجَّارِ﴾</span>، <span className="font-serif text-gold-300">﴿حِمَارِكَ﴾</span>.</p>
+                </div>
+                <div className="bg-navy-900/60 p-4 rounded-lg">
+                  <strong className="text-white block mb-1">2. لفظ ﴿الْكَافِرِينَ﴾ و ﴿كَافِرِينَ﴾:</strong>
+                  <p>يقلل ورش الألف فيها قولاً واحداً بالياء أينما وردت منصوبة أو مجرورة بالياء.</p>
+                </div>
+                <div className="bg-navy-900/60 p-4 rounded-lg sm:col-span-2">
+                  <strong className="text-white block mb-1">3. لفظ ﴿التَّوْرَاةَ﴾:</strong>
+                  <p>يقلل ورش لفظ التوراة قولاً واحداً من طريق الأزرق حيثما ورد في القرآن الكريم، سواء كان مرفوعاً أو منصوباً أو مجروراً.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

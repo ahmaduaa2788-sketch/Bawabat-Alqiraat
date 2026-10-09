@@ -19,7 +19,7 @@ export const qalunUnit5Content: Record<string, React.ReactNode> = {
         </div>
         <div className="bg-navy-800/50 p-4 rounded border border-navy-700 shadow-sm border-r-4 border-r-gold-500">
           <h4 className="font-bold text-gold-400 mb-2">3. بعدها همزة وصل:</h4>
-          <p className="text-sm text-navy-200">الفتح، سواء كانت همزة وصل مفردة أو مع لام التعريف (إِنِّيَ اصْطَفَيْتُكَ).</p>
+          <p className="text-sm text-navy-200">الفتح، سواء كانت همزة وصل مفردة أو مع لام التعريف، مثل: (إِنِّيَ اصْطَفَيْتُكَ)، و (عَهْدِيَ الظَّالِمِينَ).</p>
         </div>
         <div className="bg-navy-800/50 p-4 rounded border border-navy-700 shadow-sm border-r-4 border-r-gold-500">
           <h4 className="font-bold text-gold-400 mb-2">4. بعدها أي حرف آخر:</h4>

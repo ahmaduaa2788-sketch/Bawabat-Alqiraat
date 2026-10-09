@@ -41,10 +41,12 @@ export const unit4Content: Record<string, React.ReactNode> = {
               <div className="bg-navy-950 p-4 rounded-xl border border-navy-800">
                 <h5 className="text-gold-400 font-bold mb-2">قبلها كسر (تبدل ياءً)</h5>
                 <ul className="text-navy-100 list-disc list-inside space-y-1">
-                  <li><span className="font-serif text-white">﴿بِئْسَ﴾</span> تُقرأ: بِيسَ</li>
-                  <li><span className="font-serif text-white">﴿شِئْتَ﴾</span> تُقرأ: شِيتَ</li>
-                  <li><span className="font-serif text-white">﴿الذِّئْبُ﴾</span> تُقرأ: الذِّيبُ</li>
+                  <li><span className="font-serif text-white">﴿ائْتِ بَقُرْآنٍ﴾</span> تُقرأ ابتداءً: إِيتِ</li>
+                  <li><span className="font-serif text-white">﴿الَّذِي اؤْتُمِنَ﴾</span> تُقرأ وصلاً: الَّذِي ايتُمِنَ</li>
                 </ul>
+                <p className="text-xs text-gold-300 mt-2">
+                  (أما بِئْسَ، بِئْر، الذِّئْب فهي عين الكلمة أبدلها ورش على خلاف الأصل كما سيأتي في الدرس الثالث).
+                </p>
               </div>
               
               <div className="bg-navy-950 p-4 rounded-xl border border-navy-800">

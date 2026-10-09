@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2, XCircle, ArrowLeft, RefreshCw, Trophy } from 'lucide-react';
+import { useProgress } from '../context/ProgressContext';
 
 const allQalunQuestions = [
   {
@@ -70,6 +71,7 @@ function shuffleArray(array) {
 }
 
 export function QalunComprehensiveQuiz({ onComplete }: { onComplete: () => void }) {
+  const { completeLesson, updateStreak } = useProgress();
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -82,6 +84,13 @@ export function QalunComprehensiveQuiz({ onComplete }: { onComplete: () => void 
     const shuffled = shuffleArray(allQalunQuestions);
     setQuestions(shuffled.slice(0, 5));
   }, []);
+
+  useEffect(() => {
+    if (quizFinished && questions.length > 0 && score >= questions.length * 0.8) {
+      completeLesson('qalun-unit-14-final-quiz');
+      updateStreak();
+    }
+  }, [quizFinished, score, questions.length, completeLesson, updateStreak]);
 
   const handleSelect = (idx: number) => {
     if (showResult) return;

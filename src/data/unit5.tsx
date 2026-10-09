@@ -152,10 +152,23 @@ export const unit5Content: Record<string, React.ReactNode> = {
             </div>
           </div>
           
-          <div className="mt-6 p-4 bg-yellow-900/20 border border-yellow-700/50 rounded-xl flex gap-3 text-yellow-500">
+          <div className="mt-6 p-5 bg-gold-500/10 border border-gold-500/30 rounded-xl space-y-3">
+            <h4 className="text-gold-400 font-bold text-base flex items-center gap-2">
+              <Quote className="w-5 h-5" />
+              النقل في كلمة واحدة: كلمة ﴿رِدۡءٗا يُصَدِّقُنِي﴾ [القصص: 34]
+            </h4>
+            <p className="text-navy-100 text-sm leading-relaxed">
+              قال الإمام الشاطبي: <span className="font-serif text-white">«وَنَقْلُ رِدًا عَنْ نَافِعٍ...»</span>.
+            </p>
+            <p className="text-navy-200 text-sm leading-relaxed">
+              الأصل في النقل أن يكون بين كلمتين، ولكن استثنى الإمام ورش كلمة <strong className="text-white">﴿رِدۡءٗا﴾</strong> في سورة القصص: فنقل حركة الهمزة (الفتحة) إلى الدال الساكنة قبلها في نفس الكلمة مع حذف الهمزة وتنوين الدال، فتقرأ وصلاً: <span className="font-serif text-gold-400 text-lg font-bold">﴿رِداً يُصَدِّقُنِي﴾</span>.
+            </p>
+          </div>
+
+          <div className="mt-4 p-4 bg-yellow-900/20 border border-yellow-700/50 rounded-xl flex gap-3 text-yellow-500">
             <AlertTriangle className="w-6 h-6 flex-shrink-0" />
             <p className="text-sm leading-relaxed">
-              <strong>تنبيه من الشاطبية (ونقل ردا...):</strong> نقل عن الإمام نافع الرد (بترك النقل) في هذه الكلمة للمحافظة على هاء السكت التي بنيت على السكون، ولذلك جرى العمل بتقديم وجه السكت.
+              <strong>تنبيه في (كِتَابِيَهْ ۝ إِنِّي):</strong> هاء السكت بنيت على السكون الأصلي لبيان حركة البناء، ولذلك فضل أئمة الأداء وجه السكت على وجه النقل لئلا تزول صورة هاء السكت.
             </p>
           </div>
         </div>

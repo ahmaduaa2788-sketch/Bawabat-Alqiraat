@@ -47,6 +47,27 @@ export const unit10Content: Record<string, React.ReactNode> = {
                 <span className="font-serif text-xl text-white">ظَلَمَ ، أَظْلَمَ</span>
               </div>
             </div>
+
+            <div className="mt-6 p-4 bg-navy-900/80 rounded-xl border border-navy-700/80 space-y-3">
+              <h5 className="text-gold-400 font-bold text-base flex items-center gap-2">
+                <Info className="w-5 h-5" />
+                محترزات الشروط وموانع التغليظ (مهم جداً للاختبار)
+              </h5>
+              <p className="text-navy-200 text-sm leading-relaxed">
+                لا يغلظ ورش اللام إذا فُقد شرط من الشروط السابقة:
+              </p>
+              <ul className="text-sm text-navy-100 space-y-2 list-disc list-inside">
+                <li>
+                  <strong className="text-white">إذا لم يكن الحرف السابق من أحرف الإطباق الثلاثة:</strong> نحو: <span className="font-serif text-gold-300">﴿يَخۡلُ لَكُمۡ﴾</span> و <span className="font-serif text-gold-300">﴿غِلّٗا﴾</span>، فالخاء والغين ليستا من حروف الإطباق الثلاثة المشروطة للتغليظ.
+                </li>
+                <li>
+                  <strong className="text-white">إذا لم تكن اللام مفتوحة:</strong> بأن كانت مكسورة نحو <span className="font-serif text-gold-300">﴿غِلًّا﴾</span>، أو مضمومة نحو <span className="font-serif text-gold-300">﴿فَصْلُ الْخِطَابِ﴾</span>، فلا تغليظ قولاً واحداً بل ترقق كسائر القراء.
+                </li>
+                <li>
+                  <strong className="text-white">إذا كان حرف الإطباق مكسوراً:</strong> نحو <span className="font-serif text-gold-300">﴿صِرَاطَ﴾</span> فلا تغليظ لكسرة حرف الإطباق.
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

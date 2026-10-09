@@ -20,7 +20,7 @@ export const qalunUnit4Content: Record<string, React.ReactNode> = {
           </li>
           <li className="p-3 bg-navy-900/50 rounded-lg border-r-4 border-r-gold-500">
             <strong>3. (يُعَذِّبُ مَن يَشَاءُ) في البقرة:</strong>
-            <p className="text-navy-300 mt-2">يقرؤها بالإدغام (يُعَذِّمَّن) لأن الباء عنده ساكنة في هذا الموضع.</p>
+            <p className="text-navy-300 mt-2">يقرؤها قالون بـ <strong>الإظهار</strong> وضم الباء رفعاً: ﴿وَيُعَذِّبُ مَن يَشَاءُ﴾، خلافاً لمن قرأ بسكون الباء وإدغامها كأبي عمرو.</p>
           </li>
         </ul>
       </div>
